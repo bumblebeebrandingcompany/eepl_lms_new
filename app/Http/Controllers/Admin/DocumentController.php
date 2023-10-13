@@ -295,7 +295,7 @@ class DocumentController extends Controller
                         ->where('event_type', 'document_sent')
                         ->select(['webhook_data', 'lead_id', 'sell_do_lead_id', 'created_at'])
                         ->orderBy('created_at', 'desc')
-                        ->cursorPaginate(30);
+                        ->simplePaginate(30);
                         
         return view('admin.documents.log')
             ->with(compact('activities'));

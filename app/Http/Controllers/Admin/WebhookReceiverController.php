@@ -44,15 +44,26 @@ class WebhookReceiverController extends Controller
         
     }
 
-    public function incomingWebhookList(Request $request)
+    public function getNewLeadWebhookLog(Request $request)
     {
         abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $new_leads_history = $this->__getLeadActivityHistory($request);
-        $leads_activities_history = $this->__getNewLeadActivityHistory($request);
+        $search_text = $request->get('search', '');
+        $new_leads_history = $this->__getNewLeadActivityHistory($request);
 
-        return view('admin.webhook.index')
-            ->with(compact('new_leads_history', 'leads_activities_history'));
+        return view('admin.webhook.new_lead_log')
+            ->with(compact('new_leads_history', 'search_text'));
+    }
+
+    public function getLeadActivitiesWebhookLog(Request $request)
+    {
+        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $leads_activities_history = $this->__getLeadActivityHistory($request);
+        $search_text = $request->get('search', '');
+
+        return view('admin.webhook.lead_activities_log')
+            ->with(compact('leads_activities_history', 'search_text'));
     }
 
     /**
@@ -174,23 +185,41 @@ class WebhookReceiverController extends Controller
         }
     }
 
-    protected function __getLeadActivityHistory()
+    protected function __getNewLeadActivityHistory($request)
     {
-        $leads = Lead::whereNotNull('lead_event_webhook_response')
-                ->orderBy('created_at', 'desc')
-                ->cursorPaginate(4);
+        $search_text = $request->get('search', '');
+        $query = Lead::whereNotNull('lead_event_webhook_response');
+
+        if(!empty($search_text)) {
+            $query->where('lead_event_webhook_response', 'like', '%'.$search_text.'%');
+        }
+
+        $leads = $query->orderBy('created_at', 'desc')
+                    ->simplePaginate(30);
+
+        if(!empty($search_text)) {
+            $leads->appends(['search' => $search_text]);
+        }
 
         return $leads;
     }
 
-    protected function __getNewLeadActivityHistory()
+    protected function __getLeadActivityHistory($request)
     {
-        $activities = LeadEvents::with(['lead'])
-                        ->whereNotIn('event_type', ['document_sent'])
-                        ->select(['webhook_data', 'lead_id', 'sell_do_lead_id', 'created_at', 'event_type'])
-                        ->orderBy('created_at', 'desc')
-                        ->cursorPaginate(4);
-                        
+        $search_text = $request->get('search', '');
+        $query = LeadEvents::whereNotIn('event_type', ['document_sent']);
+
+        if(!empty($search_text)) {
+            $query->where('webhook_data', 'like', '%'.$search_text.'%');
+        }
+
+        $activities = $query->orderBy('created_at', 'desc')
+                        ->simplePaginate(30);
+
+        if(!empty($search_text)) {
+            $activities->appends(['search' => $search_text]);
+        }
+
         return $activities;
     }
 }

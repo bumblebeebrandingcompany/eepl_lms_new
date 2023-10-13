@@ -148,12 +148,14 @@
                     {!! $lead->sell_do_status ?? '' !!}
                 </a>
             </li>
-            <li class="list-group-item">
-                <b>@lang('messages.sell_do_stage')</b>
-                <a class="float-right">
-                    {!! $lead->sell_do_stage ?? '' !!}
-                </a>
-            </li>
+            @if(!(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
+                <li class="list-group-item">
+                    <b>@lang('messages.sell_do_stage')</b>
+                    <a class="float-right">
+                        {!! $lead->sell_do_stage ?? '' !!}
+                    </a>
+                </li>
+            @endif
             <li class="list-group-item">
                 <b>@lang('messages.customer_comments')</b>
                 <a class="float-right">

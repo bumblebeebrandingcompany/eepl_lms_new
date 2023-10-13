@@ -32,20 +32,16 @@
             <div class="card">
                 <div class="card-header p-2">
                     <ul class="nav nav-pills" id="lead-tab" role="tablist">
-                        <!-- <li class="nav-item">
-                            <a class="nav-link active" id="lead-details-tab" data-toggle="tab" href="#lead-details" role="tab" aria-controls="lead-details" aria-selected="true">
-                                <i class="fas fa-th-list"></i>
-                                @lang('messages.details')
-                            </a>
-                        </li> -->
+                        @if(!(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
+                            <li class="nav-item">
+                                <a class="nav-link active" id="lead-timeline-tab" data-toggle="tab" href="#lead-timeline" role="tab" aria-controls="lead-timeline" aria-selected="false">
+                                    <i class="fas fa-history"></i>
+                                    @lang('messages.profile')
+                                </a>
+                            </li>
+                        @endif
                         <li class="nav-item">
-                            <a class="nav-link active" id="lead-timeline-tab" data-toggle="tab" href="#lead-timeline" role="tab" aria-controls="lead-timeline" aria-selected="false">
-                                <i class="fas fa-history"></i>
-                                @lang('messages.profile')
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="lead-documents-tab" data-toggle="tab" href="#lead-documents" role="tab" aria-controls="lead-documents" aria-selected="false">
+                            <a class="nav-link @if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) active @endif" id="lead-documents-tab" data-toggle="tab" href="#lead-documents" role="tab" aria-controls="lead-documents" aria-selected="false">
                                 <i class="fas fa-question-circle"></i>
                                 @lang('messages.documents')
                             </a>
@@ -60,13 +56,12 @@
                 </div>
                 <div class="card-body">
                     <div class="tab-content" id="lead-tabContent">
-                        <!-- <div class="tab-pane fade active show" id="lead-details" role="tabpanel" aria-labelledby="lead-details-tab">
-                            @includeIf('admin.leads.partials.details')
-                        </div> -->
-                        <div class="tab-pane fade active show" id="lead-timeline" role="tabpanel" aria-labelledby="lead-timeline-tab">
-                            @includeIf('admin.leads.partials.timeline')
-                        </div>
-                        <div class="tab-pane fade" id="lead-documents" role="tabpanel" aria-labelledby="lead-documents-tab">
+                        @if(!(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
+                            <div class="tab-pane fade active show" id="lead-timeline" role="tabpanel" aria-labelledby="lead-timeline-tab">
+                                @includeIf('admin.leads.partials.timeline')
+                            </div>
+                        @endif
+                        <div class="tab-pane fade @if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) active show @endif" id="lead-documents" role="tabpanel" aria-labelledby="lead-documents-tab">
                             @includeIf('admin.leads.partials.documents')
                         </div>
                         <div class="tab-pane fade" id="lead-webhook_response" role="tabpanel" aria-labelledby="lead-webhook_response-tab">

@@ -27,7 +27,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
         
     Route::get('/', 'HomeController@index')->name('home');
 
-    Route::get('incoming-webhook/list', 'WebhookReceiverController@incomingWebhookList')->name('webhook.incoming.list');
+    //webhook receiver
+    Route::get('webhook/new-lead', 'WebhookReceiverController@getNewLeadWebhookLog')
+        ->name('webhook.new.lead.log');
+        
+    Route::get('webhook/lead-activities', 'WebhookReceiverController@getLeadActivitiesWebhookLog')
+        ->name('webhook.lead.activities.log');
 
     // Permissions
     Route::delete('permissions/destroy', 'PermissionsController@massDestroy')->name('permissions.massDestroy');

@@ -44,13 +44,32 @@
                     </li>
                 @endif
                 @if(auth()->user()->is_superadmin)
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs("admin.webhook.incoming.list") ? "active" : "" }}" href="{{ route("admin.webhook.incoming.list") }}">
+                    <li class="nav-item has-treeview {{ request()->routeIs('admin.webhook.new.lead.log') ? 'menu-open' : '' }} {{ request()->routeIs('admin.webhook.lead.activities.log') ? 'menu-open' : '' }}">
+                        <a class="nav-link nav-dropdown-toggle {{ request()->routeIs('admin.webhook.new.lead.log') ? 'active' : '' }} {{ request()->routeIs('admin.webhook.lead.activities.log') ? 'active' : '' }}" href="#">
                             <i class="fas fa-satellite-dish nav-icon fa-fw"></i>
                             <p>
                                 {{ trans('messages.webhook') }}
+                                <i class="right fa fa-fw fa-angle-left nav-icon ml-3"></i>
                             </p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs("admin.webhook.new.lead.log") ? "active" : "" }}" href="{{ route("admin.webhook.new.lead.log") }}">
+                                    <i class="fas fa-handshake nav-icon fa-fw"></i>
+                                    <p>
+                                        @lang('messages.new_lead')
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs("admin.webhook.lead.activities.log") ? "active" : "" }}" href="{{ route("admin.webhook.lead.activities.log") }}">
+                                    <i class="fas fa-history nav-icon fa-fw"></i>
+                                    <p>
+                                        @lang('messages.lead_activities')
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item has-treeview {{ request()->is('admin/documents*') ? 'menu-open' : '' }} {{ request()->routeIs('admin.get.documents.log') ? 'menu-open' : '' }}">
                         <a class="nav-link nav-dropdown-toggle {{ request()->is('admin/documents*') ? 'active' : '' }} {{ request()->routeIs('admin.get.documents.log') ? 'active' : '' }}" href="#">
