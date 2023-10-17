@@ -11,7 +11,7 @@ class StoreProjectRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('project_create');
     }
 
     public function rules()

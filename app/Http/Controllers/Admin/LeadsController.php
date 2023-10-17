@@ -46,6 +46,10 @@ class LeadsController extends Controller
 
     public function index(Request $request)
     {
+        if(!auth()->user()->checkPermission('lead_view')){
+            abort(403, 'Unauthorized.');
+        }
+
         $lead_view = empty($request->view) ? 'list' : (in_array($request->view, $this->lead_view) ? $request->view : 'list');
         $__global_clients_filter = $this->util->getGlobalClientsFilter();
         if(!empty($__global_clients_filter)) {
@@ -68,9 +72,9 @@ class LeadsController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) use($user) {
-                $viewGate      = true;
-                $editGate      = $user->is_superadmin;
-                $deleteGate    = $user->is_superadmin;
+                $viewGate      = $user->checkPermission('lead_view');
+                $editGate      = $user->checkPermission('lead_edit');
+                $deleteGate    = $user->checkPermission('lead_delete');
                 $crudRoutePart = 'leads';
 
                 return view('partials.datatablesActions', compact(
@@ -84,7 +88,7 @@ class LeadsController extends Controller
 
             $table->addColumn('email', function ($row) use($user) {
                 $email_cell = $row->email ? $row->email : '';
-                if(!empty($email_cell) && $user->is_channel_partner_manager) {
+                if(!empty($email_cell) && $user->checkPermission('number_and_email_masking')) {
                     return maskEmail($email_cell);
                 } else {
                     return $email_cell;
@@ -127,7 +131,7 @@ class LeadsController extends Controller
 
             $table->addColumn('phone', function ($row) use($user) {
                 $phone =  $row->phone ? $row->phone : '';
-                if(!empty($phone) && $user->is_channel_partner_manager) {
+                if(!empty($phone) && $user->checkPermission('number_and_email_masking')) {
                     return maskNumber($phone);
                 } else {
                     return $phone;
@@ -136,7 +140,7 @@ class LeadsController extends Controller
 
             $table->editColumn('secondary_phone', function ($row) use($user) {
                 $secondary_phone =  $row->secondary_phone ? $row->secondary_phone : '';
-                if(!empty($secondary_phone) && $user->is_channel_partner_manager) {
+                if(!empty($secondary_phone) && $user->checkPermission('number_and_email_masking')) {
                     return maskNumber($secondary_phone);
                 } else {
                     return $secondary_phone;
@@ -209,10 +213,10 @@ class LeadsController extends Controller
 
     public function create()
     {
-        if(!(auth()->user()->is_superadmin || auth()->user()->is_channel_partner)) {
+        if(!auth()->user()->checkPermission('lead_create')){
             abort(403, 'Unauthorized.');
         }
-        
+
         $project_ids = $this->util->getUserProjects(auth()->user());
         $campaign_ids = $this->util->getCampaigns(auth()->user());
 
@@ -259,7 +263,7 @@ class LeadsController extends Controller
 
     public function edit(Lead $lead)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('lead_edit')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -291,8 +295,12 @@ class LeadsController extends Controller
     public function show(Lead $lead)
     {
         if(
-            auth()->user()->is_channel_partner && 
-            ($lead->created_by != auth()->user()->id)
+            !auth()->user()->checkPermission('lead_view') || 
+            (
+                in_array(auth()->user()->user_type, ['lead_view_own_only', 'CRMHead']) &&
+                auth()->user()->checkPermission('lead_view_own_only') && 
+                ($lead->created_by != auth()->user()->id)
+            )
         ) {
             abort(403, 'Unauthorized.');
         }
@@ -313,7 +321,7 @@ class LeadsController extends Controller
 
     public function destroy(Lead $lead)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('lead_delete')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -324,7 +332,7 @@ class LeadsController extends Controller
 
     public function massDestroy(MassDestroyLeadRequest $request)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('lead_delete')) {
             abort(403, 'Unauthorized.');
         }
 

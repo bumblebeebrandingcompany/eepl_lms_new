@@ -11,7 +11,7 @@ class UpdateCampaignRequest extends FormRequest
 {
     public function authorize()
     {
-        return true;
+        return auth()->user()->checkPermission('campaign_edit');
     }
 
     public function rules()

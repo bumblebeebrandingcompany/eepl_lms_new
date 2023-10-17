@@ -53,7 +53,7 @@
                 @endif
                 @if($errors->count() > 0)
                     <div class="alert alert-danger">
-                        <ul class="list-unstyled">
+                        <ul class="list-unstyled mb-0 pb-0">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach

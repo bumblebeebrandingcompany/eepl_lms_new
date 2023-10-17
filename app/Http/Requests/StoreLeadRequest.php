@@ -12,7 +12,7 @@ class StoreLeadRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin || auth()->user()->is_channel_partner;
+        return auth()->user()->checkPermission('lead_create');
     }
 
     public function rules()

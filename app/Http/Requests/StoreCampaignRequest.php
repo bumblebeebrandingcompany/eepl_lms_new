@@ -11,7 +11,7 @@ class StoreCampaignRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('campaign_create');
     }
 
     public function rules()

@@ -1,6 +1,6 @@
 <div class="m-3">
     <div class="card">
-        @if(auth()->user()->is_superadmin)
+        @if(auth()->user()->checkPermission('source_create'))
             <div class="card-header">
                 <a class="btn btn-success float-right" href="{{ route('admin.sources.create') }}">
                     {{ trans('global.add') }} {{ trans('cruds.source.title_singular') }}
@@ -51,16 +51,22 @@
                                     {{ $source->name ?? '' }}
                                 </td>
                                 <td>
-                                    @if(auth()->user()->is_superadmin)
+                                    @if(auth()->user()->checkPermission('source_view'))
                                         <a class="btn btn-xs btn-primary" href="{{ route('admin.sources.show', $source->id) }}">
                                             {{ trans('global.view') }}
                                         </a>
+                                    @endif
+                                    @if(auth()->user()->checkPermission('source_edit'))
                                         <a class="btn btn-xs btn-info" href="{{ route('admin.sources.edit', $source->id) }}">
                                             {{ trans('global.edit') }}
                                         </a>
+                                    @endif
+                                    @if(auth()->user()->is_superadmin)
                                         <a class="btn btn-xs btn-dark" href="{{ route('admin.sources.webhook', $source->id) }}">
                                             {{ trans('messages.webhook') }}
                                         </a>
+                                    @endif
+                                    @if(auth()->user()->checkPermission('source_delete'))
                                         <form action="{{ route('admin.sources.destroy', $source->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -81,7 +87,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@if(auth()->user()->is_superadmin)
+  @if(auth()->user()->checkPermission('source_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
   let deleteButton = {
     text: deleteButtonTrans,

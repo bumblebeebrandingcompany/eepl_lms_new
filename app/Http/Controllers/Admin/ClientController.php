@@ -20,7 +20,9 @@ class ClientController extends Controller
 
     public function index(Request $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('client_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         if ($request->ajax()) {
             $query = Client::query()->select(sprintf('%s.*', (new Client)->table));
@@ -30,9 +32,9 @@ class ClientController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) {
-                $viewGate      = auth()->user()->is_superadmin;
-                $editGate      = auth()->user()->is_superadmin;
-                $deleteGate    = auth()->user()->is_superadmin;
+                $viewGate      = auth()->user()->checkPermission('client_view');
+                $editGate      = auth()->user()->checkPermission('client_edit');
+                $deleteGate    = auth()->user()->checkPermission('client_delete');
                 $crudRoutePart = 'clients';
 
                 return view('partials.datatablesActions', compact(
@@ -66,7 +68,9 @@ class ClientController extends Controller
 
     public function create()
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('client_create')){
+            abort(403, 'Unauthorized.');
+        }
 
         return view('admin.clients.create');
     }
@@ -84,7 +88,9 @@ class ClientController extends Controller
 
     public function edit(Client $client)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('client_edit')){
+            abort(403, 'Unauthorized.');
+        }
 
         return view('admin.clients.edit', compact('client'));
     }
@@ -98,7 +104,9 @@ class ClientController extends Controller
 
     public function show(Client $client)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('client_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         $client->load('clientProjects', 'clientUsers');
 
@@ -107,7 +115,9 @@ class ClientController extends Controller
 
     public function destroy(Client $client)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('client_delete')){
+            abort(403, 'Unauthorized.');
+        }
 
         $client->delete();
 
@@ -127,7 +137,9 @@ class ClientController extends Controller
 
     public function storeCKEditorImages(Request $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!(auth()->user()->checkPermission('client_create') || auth()->user()->checkPermission('client_delete'))){
+            abort(403, 'Unauthorized.');
+        }
 
         $model         = new Client();
         $model->id     = $request->input('crud_id', 0);

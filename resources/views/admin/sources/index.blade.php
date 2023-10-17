@@ -8,11 +8,13 @@
    </div>
 </div>
 <div class="card card-primary card-outline">
-    <div class="card-header">
-        <a class="btn btn-success float-right" href="{{ route('admin.sources.create') }}">
-            {{ trans('global.add') }} {{ trans('cruds.source.title_singular') }}
-        </a>
-    </div>
+    @if(auth()->user()->checkPermission('source_create'))
+        <div class="card-header">
+            <a class="btn btn-success float-right" href="{{ route('admin.sources.create') }}">
+                {{ trans('global.add') }} {{ trans('cruds.source.title_singular') }}
+            </a>
+        </div>
+    @endif
     <div class="card-body">
         <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-Source">
             <thead>
@@ -80,7 +82,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('source_delete')
+  @if(auth()->user()->checkPermission('source_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,
@@ -108,7 +110,7 @@
     }
   }
   dtButtons.push(deleteButton)
-@endcan
+@endif
 
   let dtOverrideGlobals = {
     buttons: dtButtons,

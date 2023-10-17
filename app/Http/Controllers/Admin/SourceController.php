@@ -34,7 +34,7 @@ class SourceController extends Controller
 
     public function index(Request $request)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('source_view')){
             abort(403, 'Unauthorized.');
         }
 
@@ -57,10 +57,10 @@ class SourceController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) {
-                $viewGate      = 'source_show';
-                $editGate      = 'source_edit';
-                $deleteGate    = 'source_delete';
-                $webhookSecretGate = true;
+                $viewGate      = auth()->user()->checkPermission('source_view');
+                $editGate      = auth()->user()->checkPermission('source_edit');
+                $deleteGate    = auth()->user()->checkPermission('source_delete');
+                $webhookSecretGate = auth()->user()->is_superadmin;
                 $crudRoutePart = 'sources';
 
                 return view('partials.datatablesActions', compact(
@@ -108,7 +108,7 @@ class SourceController extends Controller
 
     public function create()
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('source_create')){
             abort(403, 'Unauthorized.');
         }
 
@@ -126,7 +126,7 @@ class SourceController extends Controller
 
     public function store(StoreSourceRequest $request)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('source_create')){
             abort(403, 'Unauthorized.');
         }
 
@@ -139,7 +139,7 @@ class SourceController extends Controller
 
     public function edit(Source $source)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('source_edit')){
             abort(403, 'Unauthorized.');
         }
 
@@ -159,7 +159,7 @@ class SourceController extends Controller
 
     public function update(UpdateSourceRequest $request, Source $source)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('source_edit')){
             abort(403, 'Unauthorized.');
         }
 
@@ -171,7 +171,7 @@ class SourceController extends Controller
 
     public function show(Source $source)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('source_view')){
             abort(403, 'Unauthorized.');
         }
 
@@ -182,7 +182,9 @@ class SourceController extends Controller
 
     public function destroy(Source $source)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('source_delete')){
+            abort(403, 'Unauthorized.');
+        }
 
         $source->delete();
 
@@ -191,7 +193,7 @@ class SourceController extends Controller
 
     public function massDestroy(MassDestroySourceRequest $request)
     {
-        if(!auth()->user()->is_superadmin) {
+        if(!auth()->user()->checkPermission('source_delete')){
             abort(403, 'Unauthorized.');
         }
         

@@ -12,7 +12,7 @@ class MassDestroyClientRequest extends FormRequest
     public function authorize()
     {
 
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('client_delete');
     }
 
     public function rules()

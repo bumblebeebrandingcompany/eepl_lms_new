@@ -1,6 +1,6 @@
 <div class="m-3">
     <div class="card">
-        @if(auth()->user()->is_superadmin)
+        @if(auth()->user()->checkPermission('lead_create'))
             <div class="card-header">
                 <a class="btn btn-success float-right" href="{{ route('admin.leads.create') }}">
                     {{ trans('global.add') }} {{ trans('cruds.lead.title_singular') }}
@@ -57,13 +57,17 @@
                                     {{ $lead->campaign->campaign_name ?? '' }}
                                 </td>
                                 <td>
-                                    <a class="btn btn-xs btn-primary" href="{{ route('admin.leads.show', $lead->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-                                    <a class="btn btn-xs btn-info" href="{{ route('admin.leads.edit', $lead->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
-                                    @if(auth()->user()->is_superadmin)
+                                    @if(auth()->user()->checkPermission('lead_view'))
+                                        <a class="btn btn-xs btn-primary" href="{{ route('admin.leads.show', $lead->id) }}">
+                                            {{ trans('global.view') }}
+                                        </a>
+                                    @endif
+                                    @if(auth()->user()->checkPermission('lead_edit'))
+                                        <a class="btn btn-xs btn-info" href="{{ route('admin.leads.edit', $lead->id) }}">
+                                            {{ trans('global.edit') }}
+                                        </a>
+                                    @endif
+                                    @if(auth()->user()->checkPermission('lead_delete'))
                                         <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -84,7 +88,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@if(auth()->user()->is_superadmin)
+  @if(auth()->user()->checkPermission('lead_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
   let deleteButton = {
     text: deleteButtonTrans,

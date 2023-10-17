@@ -25,8 +25,8 @@ class HomeController
 
     public function index()
     {
-        if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) {
-            abort(403, 'Unauthorized.');
+        if(!auth()->user()->checkPermission('dashboard')){
+            return view('welcome_home');
         }
         
         $__global_clients_filter = $this->util->getGlobalClientsFilter();

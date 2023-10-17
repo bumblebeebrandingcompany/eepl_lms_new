@@ -13,7 +13,9 @@ class AuditLogsController extends Controller
 {
     public function index(Request $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->is_superadmin){
+            abort(403, 'Unauthorized.');
+        }
 
         if ($request->ajax()) {
             $query = AuditLog::query()->select(sprintf('%s.*', (new AuditLog)->table));
@@ -58,7 +60,9 @@ class AuditLogsController extends Controller
 
     public function show(AuditLog $auditLog)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->is_superadmin){
+            abort(403, 'Unauthorized.');
+        }
 
         return view('admin.auditLogs.show', compact('auditLog'));
     }

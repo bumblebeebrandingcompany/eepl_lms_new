@@ -51,7 +51,7 @@ class SystemCalendarController extends Controller
 
     public function index()
     {
-        if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) {
+        if(!auth()->user()->checkPermission('calendar')){
             abort(403, 'Unauthorized.');
         }
 

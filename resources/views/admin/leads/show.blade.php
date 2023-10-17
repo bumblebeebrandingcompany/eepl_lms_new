@@ -25,52 +25,64 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-4">
-            @includeIf('admin.leads.partials.user_details')
-        </div>
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header p-2">
-                    <ul class="nav nav-pills" id="lead-tab" role="tablist">
-                        @if(!(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
+        @if(auth()->user()->checkPermission('lead_profile'))
+            <div class="@if(!auth()->user()->checkPermission('lead_activity') && !auth()->user()->checkPermission('lead_document') && !auth()->user()->checkPermission('lead_webhook_response')) col-md-12 @else col-md-4 @endif">
+                @includeIf('admin.leads.partials.user_details')
+            </div>
+        @endif
+        @if(auth()->user()->checkPermission('lead_activity') || auth()->user()->checkPermission('lead_document') || auth()->user()->checkPermission('lead_webhook_response'))
+            <div class="@if(auth()->user()->checkPermission('lead_profile')) col-md-8 @else col-md-12 @endif">
+                <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills" id="lead-tab" role="tablist">
+                            @if(auth()->user()->checkPermission('lead_activity'))
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="lead-timeline-tab" data-toggle="tab" href="#lead-timeline" role="tab" aria-controls="lead-timeline" aria-selected="false">
+                                        <i class="fas fa-history"></i>
+                                        @lang('messages.activities')
+                                    </a>
+                                </li>
+                            @endif
+                            @if(auth()->user()->checkPermission('lead_document'))
                             <li class="nav-item">
-                                <a class="nav-link active" id="lead-timeline-tab" data-toggle="tab" href="#lead-timeline" role="tab" aria-controls="lead-timeline" aria-selected="false">
-                                    <i class="fas fa-history"></i>
-                                    @lang('messages.profile')
+                                <a class="nav-link @if(!auth()->user()->checkPermission('lead_activity')) active @endif" id="lead-documents-tab" data-toggle="tab" href="#lead-documents" role="tab" aria-controls="lead-documents" aria-selected="false">
+                                    <i class="fas fa-question-circle"></i>
+                                    @lang('messages.documents')
                                 </a>
                             </li>
-                        @endif
-                        <li class="nav-item">
-                            <a class="nav-link @if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) active @endif" id="lead-documents-tab" data-toggle="tab" href="#lead-documents" role="tab" aria-controls="lead-documents" aria-selected="false">
-                                <i class="fas fa-question-circle"></i>
-                                @lang('messages.documents')
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="lead-webhook_response-tab" data-toggle="tab" href="#lead-webhook_response" role="tab" aria-controls="lead-webhook_response" aria-selected="false">
-                                <i class="fas fa-reply"></i>
-                                @lang('messages.webhook_response')
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="card-body">
-                    <div class="tab-content" id="lead-tabContent">
-                        @if(!(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
-                            <div class="tab-pane fade active show" id="lead-timeline" role="tabpanel" aria-labelledby="lead-timeline-tab">
-                                @includeIf('admin.leads.partials.timeline')
-                            </div>
-                        @endif
-                        <div class="tab-pane fade @if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) active show @endif" id="lead-documents" role="tabpanel" aria-labelledby="lead-documents-tab">
-                            @includeIf('admin.leads.partials.documents')
-                        </div>
-                        <div class="tab-pane fade" id="lead-webhook_response" role="tabpanel" aria-labelledby="lead-webhook_response-tab">
-                            @includeIf('admin.leads.partials.webhook_responses')
+                            @endif
+                            @if(auth()->user()->checkPermission('lead_webhook_response'))
+                                <li class="nav-item">
+                                    <a class="nav-link" id="lead-webhook_response-tab" data-toggle="tab" href="#lead-webhook_response" role="tab" aria-controls="lead-webhook_response" aria-selected="false">
+                                        <i class="fas fa-reply"></i>
+                                        @lang('messages.webhook_response')
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="lead-tabContent">
+                            @if(auth()->user()->checkPermission('lead_activity'))
+                                <div class="tab-pane fade active show" id="lead-timeline" role="tabpanel" aria-labelledby="lead-timeline-tab">
+                                    @includeIf('admin.leads.partials.timeline')
+                                </div>
+                            @endif
+                            @if(auth()->user()->checkPermission('lead_document'))
+                                <div class="tab-pane fade @if(!auth()->user()->checkPermission('lead_activity')) active show @endif" id="lead-documents" role="tabpanel" aria-labelledby="lead-documents-tab">
+                                    @includeIf('admin.leads.partials.documents')
+                                </div>
+                            @endif
+                            @if(auth()->user()->checkPermission('lead_webhook_response'))
+                                <div class="tab-pane fade" id="lead-webhook_response" role="tabpanel" aria-labelledby="lead-webhook_response-tab">
+                                    @includeIf('admin.leads.partials.webhook_responses')
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 @endsection
 @section('scripts')

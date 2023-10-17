@@ -46,7 +46,9 @@ class WebhookReceiverController extends Controller
 
     public function getNewLeadWebhookLog(Request $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('webhook')){
+            abort(403, 'Unauthorized.');
+        }
 
         $search_text = $request->get('search', '');
         $new_leads_history = $this->__getNewLeadActivityHistory($request);
@@ -57,7 +59,9 @@ class WebhookReceiverController extends Controller
 
     public function getLeadActivitiesWebhookLog(Request $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('webhook')){
+            abort(403, 'Unauthorized.');
+        }
 
         $leads_activities_history = $this->__getLeadActivityHistory($request);
         $search_text = $request->get('search', '');

@@ -28,5 +28,5 @@ $(function() {
         toggleAgencyAndClient(userType, true);
     });
 
-    toggleAgencyAndClient($('.user_type_input:checked').val());
+    toggleAgencyAndClient($('.user_type_input').val());
 });

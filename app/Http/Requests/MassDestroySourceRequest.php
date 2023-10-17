@@ -11,7 +11,7 @@ class MassDestroySourceRequest extends FormRequest
 {
     public function authorize()
     {
-        return true;
+        return auth()->user()->checkPermission('source_delete');
     }
 
     public function rules()

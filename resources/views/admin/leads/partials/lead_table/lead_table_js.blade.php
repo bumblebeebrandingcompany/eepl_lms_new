@@ -1,6 +1,6 @@
 let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
 dtButtons.splice(4, 1);//remove excel button
-@if(auth()->user()->is_superadmin)
+@if(auth()->user()->checkPermission('lead_delete'))
     let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
     let deleteButton = {
         text: deleteButtonTrans,

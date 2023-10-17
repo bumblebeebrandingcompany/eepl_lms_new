@@ -36,7 +36,9 @@ class UsersController extends Controller
 
     public function index(Request $request)
     {
-        abort_if(!(auth()->user()->is_superadmin || auth()->user()->is_channel_partner_manager), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('user_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         if ($request->ajax()) {
 
@@ -55,9 +57,9 @@ class UsersController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) {
-                $viewGate      = auth()->user()->is_superadmin;
-                $editGate      = auth()->user()->is_superadmin;
-                $deleteGate    = auth()->user()->is_superadmin;
+                $viewGate      = auth()->user()->checkPermission('user_view');
+                $editGate      = auth()->user()->checkPermission('user_edit');
+                $deleteGate    = auth()->user()->checkPermission('user_delete');
                 $passwordEditGate    = auth()->user()->is_channel_partner_manager;
                 $crudRoutePart = 'users';
 
@@ -127,7 +129,9 @@ class UsersController extends Controller
 
     public function create()
     {
-        abort_if(!(auth()->user()->is_superadmin || auth()->user()->is_channel_partner_manager), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('user_create')){
+            abort(403, 'Unauthorized.');
+        }
 
         $roles = Role::pluck('title', 'id');
 
@@ -158,7 +162,9 @@ class UsersController extends Controller
 
     public function edit(User $user)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('user_edit')){
+            abort(403, 'Unauthorized.');
+        }
 
         $roles = Role::pluck('title', 'id');
 
@@ -183,7 +189,9 @@ class UsersController extends Controller
 
     public function show(User $user)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('user_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         $user->load('roles', 'client', 'agency', 'createdByProjects', 'clientProjects');
 
@@ -192,7 +200,9 @@ class UsersController extends Controller
 
     public function destroy(User $user)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('user_delete')){
+            abort(403, 'Unauthorized.');
+        }
 
         $user->delete();
 
@@ -211,9 +221,11 @@ class UsersController extends Controller
     }
 
     public function editPassword(Request $request, $id)
-    {
-        abort_if(!auth()->user()->is_channel_partner_manager, Response::HTTP_FORBIDDEN, '403 Forbidden');
-        
+    {   
+        if(!auth()->user()->is_channel_partner_manager){
+            abort(403, 'Unauthorized.');
+        }
+
         if($request->ajax()) {
             $user = User::findOrFail($id);
             return view('admin.users.partials.edit_password')
@@ -223,7 +235,10 @@ class UsersController extends Controller
 
     public function updatePassword(Request $request, $id)
     {
-        abort_if(!auth()->user()->is_channel_partner_manager, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->is_channel_partner_manager){
+            abort(403, 'Unauthorized.');
+        }
+        
         if($request->ajax()) {
             try {
                 $user = User::findOrFail($id);

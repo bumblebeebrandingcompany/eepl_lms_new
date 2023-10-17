@@ -8,7 +8,7 @@
    </div>
 </div>
 <div class="card card-primary card-outline">
-    @if(auth()->user()->is_superadmin)
+    @if(auth()->user()->checkPermission('project_create'))
         <div class="card-header">
             <button class="btn btn-warning float-right m-1" data-toggle="modal" data-target="#csvImportModal">
                 {{ trans('global.app_csvImport') }}
@@ -99,7 +99,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@if(auth()->user()->is_superadmin)
+  @if(auth()->user()->checkPermission('project_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,

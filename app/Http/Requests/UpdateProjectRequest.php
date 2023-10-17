@@ -11,7 +11,7 @@ class UpdateProjectRequest extends FormRequest
 {
     public function authorize()
     {
-        return true;
+        return auth()->user()->checkPermission('project_edit');
     }
 
     public function rules()

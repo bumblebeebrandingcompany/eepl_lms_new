@@ -8,7 +8,7 @@
    </div>
 </div>
 <div class="card card-primary card-outline">
-    @if(auth()->user()->is_superadmin)
+    @if(auth()->user()->checkPermission('campaign_create'))
         <div class="card-header">
             <a class="btn btn-success float-right" href="{{ route('admin.campaigns.create') }}">
                 {{ trans('global.add') }} {{ trans('cruds.campaign.title_singular') }}
@@ -90,7 +90,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@if(auth()->user()->is_superadmin)
+  @if(auth()->user()->checkPermission('campaign_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,

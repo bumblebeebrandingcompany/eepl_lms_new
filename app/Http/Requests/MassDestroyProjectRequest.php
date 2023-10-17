@@ -11,7 +11,7 @@ class MassDestroyProjectRequest extends FormRequest
 {
     public function authorize()
     {
-        return true;
+        return auth()->user()->checkPermission('project_delete');
     }
 
     public function rules()

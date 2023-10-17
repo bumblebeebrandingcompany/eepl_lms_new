@@ -11,7 +11,7 @@ class UpdateSourceRequest extends FormRequest
 {
     public function authorize()
     {
-        return true;
+        return auth()->user()->checkPermission('source_edit');
     }
 
     public function rules()

@@ -16,7 +16,9 @@ class AgencyController extends Controller
 {
     public function index(Request $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('agency_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         if ($request->ajax()) {
             $query = Agency::query()->select(sprintf('%s.*', (new Agency)->table));
@@ -26,9 +28,9 @@ class AgencyController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) {
-                $viewGate      = auth()->user()->is_superadmin;
-                $editGate      = auth()->user()->is_superadmin;
-                $deleteGate    = auth()->user()->is_superadmin;
+                $viewGate      = auth()->user()->checkPermission('agency_view');
+                $editGate      = auth()->user()->checkPermission('agency_edit');
+                $deleteGate    = auth()->user()->checkPermission('agency_delete');
                 $crudRoutePart = 'agencies';
 
                 return view('partials.datatablesActions', compact(
@@ -59,8 +61,9 @@ class AgencyController extends Controller
 
     public function create()
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
-
+        if(!auth()->user()->checkPermission('agency_create')){
+            abort(403, 'Unauthorized.');
+        }
         return view('admin.agencies.create');
     }
 
@@ -73,7 +76,9 @@ class AgencyController extends Controller
 
     public function edit(Agency $agency)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('agency_edit')){
+            abort(403, 'Unauthorized.');
+        }
 
         return view('admin.agencies.edit', compact('agency'));
     }
@@ -87,7 +92,9 @@ class AgencyController extends Controller
 
     public function show(Agency $agency)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('agency_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         $agency->load('agencyUsers', 'agencyCampaigns');
 
@@ -96,7 +103,9 @@ class AgencyController extends Controller
 
     public function destroy(Agency $agency)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('agency_delete')){
+            abort(403, 'Unauthorized.');
+        }
 
         $agency->delete();
 

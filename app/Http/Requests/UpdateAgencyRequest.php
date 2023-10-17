@@ -11,7 +11,7 @@ class UpdateAgencyRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('agency_edit');
     }
 
     public function rules()

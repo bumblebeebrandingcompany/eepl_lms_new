@@ -39,11 +39,7 @@ class LoginController extends Controller
     }
 
     protected function redirectTo()
-    {
-        if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) {
-            return '/admin/leads';
-        }
-        
+    {   
         return RouteServiceProvider::HOME;
     }
 }

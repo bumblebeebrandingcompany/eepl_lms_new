@@ -11,7 +11,7 @@ class StoreClientRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('client_create');
     }
 
     public function rules()

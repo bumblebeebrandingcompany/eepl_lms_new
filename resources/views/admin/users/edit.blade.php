@@ -59,12 +59,13 @@
             </div> -->
             <div class="form-group">
                 <label class="required">{{ trans('cruds.user.fields.user_type') }}</label>
-                @foreach(App\Models\User::USER_TYPE_RADIO as $key => $label)
-                    <div class="form-check {{ $errors->has('user_type') ? 'is-invalid' : '' }}">
-                        <input class="form-check-input user_type_input" type="radio" id="user_type_{{ $key }}" name="user_type" value="{{ $key }}" {{ old('user_type', $user->user_type) === (string) $key ? 'checked' : '' }} required>
-                        <label class="form-check-label" for="user_type_{{ $key }}">{{ $label }}</label>
-                    </div>
-                @endforeach
+                <select class="form-control user_type_input select2 {{ $errors->has('user_type') ? 'is-invalid' : '' }}" name="user_type" id="user_type" required>
+                    @foreach(App\Models\User::USER_TYPE_RADIO as $key => $label)
+                        <option value="{{ $key }}" {{ old('user_type', $user->user_type) === (string) $key ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
                 @if($errors->has('user_type'))
                     <span class="text-danger">{{ $errors->first('user_type') }}</span>
                 @endif

@@ -107,3 +107,7 @@ div.dt-button-collection {
 img{
     max-width: 100% !important;
 }
+
+.word-break {
+    word-break: break-word !important;
+}

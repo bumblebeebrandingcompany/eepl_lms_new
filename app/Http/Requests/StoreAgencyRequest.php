@@ -11,7 +11,7 @@ class StoreAgencyRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('agency_create');
     }
 
     public function rules()

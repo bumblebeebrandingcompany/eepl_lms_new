@@ -15,16 +15,18 @@
                         <div class="col-md-12 faq_answer">
                             {!!$document->details!!}
                         </div>
-                        <div class="col-md-12 mt-3">
-                            <label for="note_{{$index}}">
-                                @lang('messages.note')
-                            </label>
-                            <textarea name="note" id="note_{{$index}}" rows="2" class="form-control"></textarea>
-                            <button type="button" class="btn btn-outline-primary send_doc_to_lead mt-2"
-                                data-href="{{route('admin.share.lead.doc', ['lead_id' => $lead->id, 'doc_id' => $document->id])}}">
-                                @lang('messages.send_to_lead')
-                            </button>
-                        </div>
+                        @if(auth()->user()->checkPermission('document_send'))
+                            <div class="col-md-12 mt-3">
+                                <label for="note_{{$index}}">
+                                    @lang('messages.note')
+                                </label>
+                                <textarea name="note" id="note_{{$index}}" rows="2" class="form-control"></textarea>
+                                <button type="button" class="btn btn-outline-primary send_doc_to_lead mt-2"
+                                    data-href="{{route('admin.share.lead.doc', ['lead_id' => $lead->id, 'doc_id' => $document->id])}}">
+                                    @lang('messages.send_to_lead')
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

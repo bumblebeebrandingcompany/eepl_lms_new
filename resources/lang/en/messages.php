@@ -133,4 +133,5 @@ return [
     'event_type' => 'Event type',
     'log' => 'Log',
     'search' => 'Search',
+    'activities' => 'Activities',
 ];

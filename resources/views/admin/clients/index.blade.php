@@ -9,7 +9,7 @@
 </div>
 <div class="card card-primary card-outline">
     <div class="card-header">
-        @if(auth()->user()->is_superadmin)
+		@if(auth()->user()->checkPermission('client_create'))
             <a class="btn btn-success float-right" href="{{ route('admin.clients.create') }}">
                 {{ trans('global.add') }} {{ trans('cruds.client.title_singular') }}
             </a>
@@ -51,7 +51,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@if(auth()->user()->is_superadmin)
+  @if(auth()->user()->checkPermission('client_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,

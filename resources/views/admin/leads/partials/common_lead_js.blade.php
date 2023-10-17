@@ -110,9 +110,9 @@ $(document).on('change', '#campaign_id', function() {
 function generateUrl(url, view='') {
     let filters = {};
 
-    filters.project_id = $("#project_id").val();
-    filters.campaign_id = $("#campaign_id").val();
-    filters.leads_status = $("#leads_status").val();
+    filters.project_id = $("#project_id").val() || '';
+    filters.campaign_id = $("#campaign_id").val() || '';
+    filters.leads_status = $("#leads_status").val() || '';
     filters.no_lead_id = $("#no_lead_id").is(":checked");
 
     if($("#source_id").length) {

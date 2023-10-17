@@ -11,7 +11,7 @@ class MassDestroyAgencyRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('agency_delete');
     }
 
     public function rules()

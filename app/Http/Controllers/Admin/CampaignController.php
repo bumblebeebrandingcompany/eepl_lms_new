@@ -35,7 +35,7 @@ class CampaignController extends Controller
 
     public function index(Request $request)
     {
-        if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) {
+        if(!auth()->user()->checkPermission('campaign_view')){
             abort(403, 'Unauthorized.');
         }
 
@@ -60,9 +60,9 @@ class CampaignController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) use($user) {
-                $viewGate      = true;
-                $editGate      = true;
-                $deleteGate    = $user->is_superadmin;
+                $viewGate      = $user->checkPermission('campaign_view');
+                $editGate      = $user->checkPermission('campaign_edit');
+                $deleteGate    = $user->checkPermission('campaign_delete');
                 $crudRoutePart = 'campaigns';
 
                 return view('partials.datatablesActions', compact(
@@ -98,7 +98,9 @@ class CampaignController extends Controller
 
     public function create()
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('campaign_create')){
+            abort(403, 'Unauthorized.');
+        }
 
         $projects = Project::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
@@ -111,7 +113,9 @@ class CampaignController extends Controller
 
     public function store(StoreCampaignRequest $request)
     {
-        abort_if(auth()->user()->is_channel_partner_manager, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('campaign_create')){
+            abort(403, 'Unauthorized.');
+        }
 
         $campaign_details = $request->except('_token');
         $campaign = Campaign::create($campaign_details);
@@ -121,7 +125,7 @@ class CampaignController extends Controller
 
     public function edit(Campaign $campaign)
     {
-        if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) {
+        if(!auth()->user()->checkPermission('campaign_edit')){
             abort(403, 'Unauthorized.');
         }
 
@@ -136,7 +140,7 @@ class CampaignController extends Controller
 
     public function update(UpdateCampaignRequest $request, Campaign $campaign)
     {
-        if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) {
+        if(!auth()->user()->checkPermission('campaign_edit')){
             abort(403, 'Unauthorized.');
         }
 
@@ -147,10 +151,10 @@ class CampaignController extends Controller
 
     public function show(Campaign $campaign)
     {
-        if(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) {
+        if(!auth()->user()->checkPermission('campaign_view')){
             abort(403, 'Unauthorized.');
         }
-        
+
         $campaign->load('project', 'agency', 'campaignLeads', 'campaignSources');
 
         return view('admin.campaigns.show', compact('campaign'));
@@ -158,7 +162,9 @@ class CampaignController extends Controller
 
     public function destroy(Campaign $campaign)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('campaign_delete')){
+            abort(403, 'Unauthorized.');
+        }
 
         $campaign->delete();
 

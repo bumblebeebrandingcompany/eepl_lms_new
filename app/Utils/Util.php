@@ -16,7 +16,7 @@ class Util
     {
         $query = new Project();
 
-        if (!$user->is_superadmin) {
+        if ($user->is_channel_partner || $user->is_client || $user->is_agency) {
             $cp_project_ids = $user->project_assigned ?? [];
             $query = $query->where(function ($q) use($user, $cp_project_ids) {
                         if($user->is_channel_partner) {
@@ -37,13 +37,13 @@ class Util
     {
         $query = new Campaign();
 
-        if (!$user->is_superadmin && $user->is_agency) {
+        if ($user->is_agency) {
             $query = $query->where(function ($q) use($user) {
                         $q->where('agency_id', $user->agency_id);
                     });
         }
 
-        if (!$user->is_superadmin && $user->is_client) {
+        if ($user->is_client) {
             $query = $query->where(function ($q) use($project_ids) {
                     $q->whereIn('project_id', $project_ids);
                 });
@@ -597,11 +597,20 @@ class Util
     {
         $prefixes = [
             'Superadmin' => 'SU',
+            'Admin' => 'AD',
             'Client' => 'CL',
             'Agency' => 'AG',
             'ChannelPartner' => 'CP',
             'ChannelPartnerManager' => 'CPM',
-            'Elephantine' => 'EEPL'
+            'EEPLMgmt' => 'EEPL',
+            'PresalesHead' => 'PSH',
+            'Presales' => 'PS',
+            'Sales' => 'SA',
+            'CRMTeam' => 'CRMT',
+            'CRMHead' => 'CRMH',
+            'LegalTeam' => 'LET',
+            'BankingTeam' => 'BAT',
+            'Customer' => 'CUST'
         ];
         return $this->generateReferenceNumber($user->id, $prefixes[$user->user_type]);
     }
@@ -634,8 +643,9 @@ class Util
         }
 
         if($user->is_channel_partner_manager) {
-            $query = $query->whereHas('createdBy', function ($q) {
-                        $q->where('user_type', '=', 'ChannelPartner');
+            $query = $query->whereHas('createdBy', function ($q) use($user) {
+                        $q->where('user_type', '=', 'ChannelPartner')
+                        ->orWhere('leads.created_by', $user->id);
                     });
         } else {
             $query = $query->where(function ($q) use($project_ids, $campaign_ids, $user) {

@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card card-primary card-outline">
-                @if(auth()->user()->is_superadmin)
+                @if(auth()->user()->checkPermission('document_create'))
                     <div class="card-header">
                         <a class="btn btn-success float-right" href="{{ route('admin.documents.create') }}">
                             {{ trans('global.add') }} {{ trans('messages.document') }}
@@ -66,7 +66,7 @@
 <script>
     $(function () {
         let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-        @if(auth()->user()->is_superadmin)
+        @if(auth()->user()->checkPermission('document_delete'))
             let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
             let deleteButton = {
                 text: deleteButtonTrans,

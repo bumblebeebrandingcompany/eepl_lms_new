@@ -11,7 +11,7 @@ class MassDestroyLeadRequest extends FormRequest
 {
     public function authorize()
     {
-        return true;
+        return auth()->user()->checkPermission('lead_delete');
     }
 
     public function rules()

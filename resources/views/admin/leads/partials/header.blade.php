@@ -14,7 +14,7 @@
                     @lang('messages.kanban_view')
                 </label>
             </div>
-            @if(auth()->user()->is_superadmin || auth()->user()->is_channel_partner)
+            @if(auth()->user()->checkPermission('lead_create'))
                 <a class="btn btn-success float-right" href="{{ route('admin.leads.create') }}">
                     {{ trans('global.add') }} {{ trans('cruds.lead.title_singular') }}
                 </a>
@@ -65,11 +65,11 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="added_on">{{ trans('messages.added_on') }}</label>
-                            <input class="form-control date_range" type="text" name="date" id="added_on" readonly>
-                        </div>
                     @endif
+                    <div class="col-md-3">
+                        <label for="added_on">{{ trans('messages.added_on') }}</label>
+                        <input class="form-control date_range" type="text" name="date" id="added_on" readonly>
+                    </div>
                     <div class="col-md-3">
                         <label for="leads_status">
                             @lang('messages.status')

@@ -42,7 +42,9 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        abort_if(($user->is_agency || $user->is_channel_partner || $user->is_channel_partner_manager), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!$user->checkPermission('project_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         if ($request->ajax()) {
 
@@ -50,10 +52,12 @@ class ProjectController extends Controller
 
             $query = Project::with(['created_by', 'client'])->select(sprintf('%s.*', (new Project)->table));
 
-            if (!$user->is_superadmin) {
-                $query = $query->where(function ($q) use($user) {
-                    $q->where('created_by_id', $user->id)
-                        ->orWhere('client_id', $user->client_id);
+            if ($user->is_channel_partner || $user->is_client || $user->is_agency) {
+                $project_ids = $this->util->getUserProjects(auth()->user());
+                $query = $query->where(function ($q) use($user, $project_ids) {
+                    $q->whereIn('projects.id', $project_ids)
+                        ->orWhere('projects.created_by_id', $user->id)
+                        ->orWhere('projects.client_id', $user->client_id);
                 });
             }
 
@@ -67,9 +71,9 @@ class ProjectController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) use($user) {
-                $viewGate      = $user->is_superadmin || $user->is_client;
-                $editGate      = $user->is_superadmin || $user->is_client;
-                $deleteGate    = $user->is_superadmin;
+                $viewGate      = $user->checkPermission('project_view');
+                $editGate      = $user->checkPermission('project_edit');
+                $deleteGate    = $user->checkPermission('project_delete');
                 $outgoingWebhookGate = $user->is_superadmin;
                 $crudRoutePart = 'projects';
 
@@ -114,7 +118,9 @@ class ProjectController extends Controller
 
     public function create()
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('project_create')){
+            abort(403, 'Unauthorized.');
+        }
 
         $created_bies = User::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
@@ -125,7 +131,9 @@ class ProjectController extends Controller
 
     public function store(StoreProjectRequest $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('project_create')){
+            abort(403, 'Unauthorized.');
+        }
 
         $project_details = $request->except('_token');
         $project_details['created_by_id'] = auth()->user()->id;
@@ -156,7 +164,9 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        abort_if((auth()->user()->is_agency || auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('project_edit')){
+            abort(403, 'Unauthorized.');
+        }
 
         $created_bies = User::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
@@ -169,7 +179,9 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        abort_if((auth()->user()->is_agency || auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('project_edit')){
+            abort(403, 'Unauthorized.');
+        }
 
         $project_details = $request->except(['_method', '_token']);
         $project->update($project_details);
@@ -179,7 +191,9 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        abort_if((auth()->user()->is_agency || auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('project_view')){
+            abort(403, 'Unauthorized.');
+        }
 
         $project->load('created_by', 'client', 'projectLeads', 'projectCampaigns');
 
@@ -188,7 +202,9 @@ class ProjectController extends Controller
 
     public function destroy(Project $project)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('project_delete')){
+            abort(403, 'Unauthorized.');
+        }
 
         $project->delete();
 
@@ -197,7 +213,9 @@ class ProjectController extends Controller
 
     public function massDestroy(MassDestroyProjectRequest $request)
     {
-        abort_if(!auth()->user()->is_superadmin, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(!auth()->user()->checkPermission('project_delete')){
+            abort(403, 'Unauthorized.');
+        }
 
         $projects = Project::find(request('ids'));
 
@@ -210,8 +228,10 @@ class ProjectController extends Controller
 
     public function storeCKEditorImages(Request $request)
     {
-        abort_if((auth()->user()->is_agency || auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
+        if(!(auth()->user()->checkPermission('project_create') || auth()->user()->checkPermission('project_edit'))){
+            abort(403, 'Unauthorized.');
+        }
+        
         $model         = new Project();
         $model->id     = $request->input('crud_id', 0);
         $model->exists = true;

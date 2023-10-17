@@ -18,7 +18,7 @@
                         </div>
                     @endif
                     <div class="row">
-                        @if(auth()->user()->is_superadmin)
+                        @if(auth()->user()->checkPermission('dashboard'))
                             <div class="{{ $settings1['column_class'] }}">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info">
@@ -33,7 +33,7 @@
                                 <!-- /.info-box -->
                             </div>
                         @endif
-                        @if(auth()->user()->is_superadmin)
+                        @if(auth()->user()->checkPermission('dashboard'))
                             <div class="{{ $settings2['column_class'] }}">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-primary" >
@@ -48,7 +48,7 @@
                                 <!-- /.info-box -->
                             </div>
                         @endif
-                        @if(auth()->user()->is_superadmin)
+                        @if(auth()->user()->checkPermission('dashboard'))
                             <div class="{{ $settings3['column_class'] }}">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-success" >
@@ -64,7 +64,7 @@
                                 <!-- /.info-box -->
                             </div>
                         @endif
-                        @if(auth()->user()->is_superadmin)
+                        @if(auth()->user()->checkPermission('dashboard'))
                             <div class="{{ $settings4['column_class'] }}">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-warning" >
@@ -80,7 +80,7 @@
                                 <!-- /.info-box -->
                             </div>
                         @endif
-                        @if(auth()->user()->is_superadmin)
+                        @if(auth()->user()->checkPermission('dashboard'))
                             <div class="{{ $settings5['column_class'] }}">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger" >
@@ -228,7 +228,7 @@
                                 </table>
                             </div>
                         </div>
-                        @if(auth()->user()->is_superadmin)
+                        @if(auth()->user()->checkPermission('dashboard'))
                             <div class="{{ $chart11->options['column_class'] }} mt-3">
                                 <h3>{!! $chart11->options['chart_title'] !!}</h3>
                                 {!! $chart11->renderHtml() !!}
@@ -243,5 +243,7 @@
 @endsection
 @section('scripts')
 @parent
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>{!! $chart11->renderJs() !!}
+@if(auth()->user()->checkPermission('dashboard'))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>{!! $chart11->renderJs() !!}
+@endif
 @endsection

@@ -45,10 +45,20 @@ class User extends Authenticatable
 
     public const USER_TYPE_RADIO = [
         'Superadmin' => 'Superadmin',
+        'Admin' => 'Admin',
         'Client'     => 'Client',
         'Agency'     => 'Agency',
         'ChannelPartner' => 'Channel Partner',
-        'ChannelPartnerManager' => 'Channel Partner Manager'
+        'ChannelPartnerManager' => 'Channel Partner Manager',
+        'EEPLMgmt' => 'EEPL Mgmt',
+        'PresalesHead' => 'Presales head',
+        'Presales' => 'Pre sales',
+        'Sales' => 'Sales',
+        'CRMTeam' => 'CRM Team',
+        'CRMHead' => 'CRM head',
+        'LegalTeam' => 'Legal team',
+        'BankingTeam' => 'Banking team',
+        'Customer' => 'Customer'
     ];
 
     /**
@@ -87,11 +97,6 @@ class User extends Authenticatable
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
-    }
-
-    public function getIsAdminAttribute()
-    {
-        return $this->roles()->where('id', 1)->exists();
     }
 
     public function createdByProjects()
@@ -189,5 +194,59 @@ class User extends Authenticatable
     public function getIsChannelPartnerManagerAttribute()
     {
         return $this->user_type == 'ChannelPartnerManager';
+    }
+
+    /**
+     * is user admin?
+     *
+     * @return boolean
+     */
+    public function getIsAdminAttribute()
+    {
+        return $this->user_type == 'Admin';
+    }
+
+    /**
+     * check user permission
+     *
+     * @return boolean
+     */
+    public function checkPermission($permission=null){
+
+        if(empty($permission)) return false;
+
+        if(in_array($this->user_type, ['Superadmin'])){
+            return in_array($permission, ['number_and_email_masking']) ? false : true;
+        } else if(in_array($this->user_type, ['Admin'])) {
+            return in_array($permission, ['document_view', 'document_send', 'document_create', 'document_edit', 'user_view', 'user_create', 'user_edit', 'agency_view', 'agency_create', 'agency_edit', 'project_view', 'project_create', 'campaign_view', 'campaign_create', 'source_view', 'source_create', 'calendar', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_delete', 'lead_activity', 'lead_profile', 'lead_document', 'lead_webhook_response']);
+        } else if(in_array($this->user_type, ['EEPLMgmt'])) {
+            return in_array($permission, ['document_view', 'document_send', 'document_create', 'document_edit', 'user_view', 'user_create', 'agency_view', 'project_view', 'campaign_view', 'source_view', 'source_create', 'calendar', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_delete', 'lead_activity', 'lead_profile', 'lead_document']);
+        } else if(in_array($this->user_type, ['PresalesHead'])) {
+            return in_array($permission, ['document_view', 'document_send', 'user_view', 'project_view', 'calendar', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_delete', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
+        } else if(in_array($this->user_type, ['Presales'])) {
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'calendar', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_delete', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
+        } else if(in_array($this->user_type, ['Sales'])) {
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_profile', 'lead_document', 'number_and_email_masking']);
+        } else if(in_array($this->user_type, ['CRMTeam'])) {
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_view', 'lead_profile', 'lead_document']);
+        } else if(in_array($this->user_type, ['CRMHead'])) {
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_delete', 'lead_activity', 'lead_profile', 'lead_document', 'lead_webhook_response', 'lead_view_own_only', 'number_and_email_masking']);
+        } else if(in_array($this->user_type, ['LegalTeam'])) {
+            return in_array($permission, ['project_view', 'profile']);
+        }  else if(in_array($this->user_type, ['BankingTeam'])) {
+            return in_array($permission, ['project_view', 'profile']);
+        }  else if(in_array($this->user_type, ['Customer'])) {
+            return in_array($permission, ['profile']);
+        }  else if(in_array($this->user_type, ['Client'])) {
+            return in_array($permission, ['profile']);
+        }  else if(in_array($this->user_type, ['Agency'])) {
+            return in_array($permission, ['profile']);
+        }  else if(in_array($this->user_type, ['ChannelPartner'])) {
+            return in_array($permission, ['project_view', 'profile', 'lead_create', 'lead_view', 'lead_profile', 'lead_view_own_only']);
+        }  else if(in_array($this->user_type, ['ChannelPartnerManager'])) {
+            return in_array($permission, ['document_view', 'document_send', 'user_view', 'cp_only_view', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'number_and_email_masking']);
+        }
+
+        return false;
     }
 }

@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         @if(
-            !(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager) &&
+            auth()->user()->checkPermission('lead_webhook_response') &&
             !empty($lead->webhook_response)
         )
             <div class="table-responsive">

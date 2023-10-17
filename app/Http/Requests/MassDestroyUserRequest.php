@@ -11,7 +11,7 @@ class MassDestroyUserRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('user_delete');
     }
 
     public function rules()

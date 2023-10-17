@@ -24,7 +24,7 @@
             <li class="list-group-item">
                 <b> @lang('messages.email')</b>
                 <a class="float-right">
-                    @if(auth()->user()->is_channel_partner_manager && !empty($lead->email))
+                    @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($lead->email))
                         {{ maskEmail($lead->email) }}
                     @else
                         {{ $lead->email ?? '' }}
@@ -34,7 +34,7 @@
             <li class="list-group-item">
                 <b>@lang('messages.additional_email_key')</b>
                 <a class="float-right">
-                    @if(auth()->user()->is_channel_partner_manager && !empty($lead->additional_email))
+                    @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($lead->additional_email))
                         {{ maskEmail($lead->additional_email) }}
                     @else
                         {{ $lead->additional_email ?? '' }}
@@ -44,7 +44,7 @@
             <li class="list-group-item">
                 <b>@lang('messages.phone')</b>
                 <a class="float-right">
-                    @if(auth()->user()->is_channel_partner_manager && !empty($lead->phone))
+                    @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($lead->phone))
                         {{ maskNumber($lead->phone) }}
                     @else
                         {{ $lead->phone ?? '' }}
@@ -54,7 +54,7 @@
             <li class="list-group-item">
                 <b>@lang('messages.secondary_phone_key')</b>
                 <a class="float-right">
-                    @if(auth()->user()->is_channel_partner_manager && !empty($lead->secondary_phone))
+                    @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($lead->secondary_phone))
                         {{ maskNumber($lead->secondary_phone) }}
                     @else
                         {{ $lead->secondary_phone ?? '' }}

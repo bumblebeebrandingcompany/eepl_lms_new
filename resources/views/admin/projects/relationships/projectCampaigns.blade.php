@@ -1,6 +1,6 @@
 <div class="m-3">
     <div class="card">
-        @if(auth()->user()->is_superadmin)
+        @if(auth()->user()->checkPermission('campaign_create'))
             <div class="card-header">
                 <a class="btn btn-success float-right" href="{{ route('admin.campaigns.create', ['project_id' => $project->id]) }}">
                     {{ trans('global.add') }} {{ trans('cruds.campaign.title_singular') }}
@@ -63,14 +63,17 @@
                                     {{ $campaign->created_at ?? '' }}
                                 </td>
                                 <td>
-                                    <a class="btn btn-xs btn-primary" href="{{ route('admin.campaigns.show', $campaign->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-
-                                    <a class="btn btn-xs btn-info" href="{{ route('admin.campaigns.edit', $campaign->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
-                                    @if(auth()->user()->is_superadmin)
+                                    @if(auth()->user()->checkPermission('campaign_view'))
+                                        <a class="btn btn-xs btn-primary" href="{{ route('admin.campaigns.show', $campaign->id) }}">
+                                            {{ trans('global.view') }}
+                                        </a>
+                                    @endif
+                                    @if(auth()->user()->checkPermission('campaign_edit'))
+                                        <a class="btn btn-xs btn-info" href="{{ route('admin.campaigns.edit', $campaign->id) }}">
+                                            {{ trans('global.edit') }}
+                                        </a>
+                                    @endif
+                                    @if(auth()->user()->checkPermission('campaign_delete'))
                                         <form action="{{ route('admin.campaigns.destroy', $campaign->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -91,7 +94,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@if(auth()->user()->is_superadmin)
+@if(auth()->user()->checkPermission('campaign_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
   let deleteButton = {
     text: deleteButtonTrans,

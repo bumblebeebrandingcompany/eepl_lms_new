@@ -40,7 +40,7 @@
                                 <th>
                                     {{ trans('cruds.client.fields.website') }}
                                 </th>
-                                <td>
+                                <td class="word-break">
                                     {{ $client->website }}
                                 </td>
                             </tr>

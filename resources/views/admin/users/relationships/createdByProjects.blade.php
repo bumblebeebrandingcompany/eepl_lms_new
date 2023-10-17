@@ -1,6 +1,6 @@
 <div class="m-3">
     <div class="card">
-        @if(auth()->user()->is_superadmin)
+        @if(auth()->user()->checkPermission('project_create'))
             <div class="card-header">
                 <a class="btn btn-success float-right" href="{{ route('admin.projects.create') }}">
                     {{ trans('global.add') }} {{ trans('cruds.project.title_singular') }}
@@ -75,28 +75,24 @@
                                     {{ $project->location ?? '' }}
                                 </td>
                                 <td>
-                                    @can('project_show')
+                                    @if(auth()->user()->checkPermission('project_view'))
                                         <a class="btn btn-xs btn-primary" href="{{ route('admin.projects.show', $project->id) }}">
                                             {{ trans('global.view') }}
                                         </a>
-                                    @endcan
-
-                                    @can('project_edit')
+                                    @endif
+                                    @if(auth()->user()->checkPermission('project_edit'))
                                         <a class="btn btn-xs btn-info" href="{{ route('admin.projects.edit', $project->id) }}">
                                             {{ trans('global.edit') }}
                                         </a>
-                                    @endcan
-
-                                    @can('project_delete')
+                                    @endif
+                                    @if(auth()->user()->checkPermission('project_delete'))
                                         <form action="{{ route('admin.projects.destroy', $project->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
                                         </form>
-                                    @endcan
-
+                                    @endif
                                 </td>
-
                             </tr>
                         @endforeach
                     </tbody>
@@ -110,7 +106,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-  @if(auth()->user()->is_superadmin)
+  @if(auth()->user()->checkPermission('project_delete'))
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
   let deleteButton = {
     text: deleteButtonTrans,

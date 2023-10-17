@@ -11,7 +11,7 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->user()->is_superadmin;
+        return auth()->user()->checkPermission('user_edit');
     }
 
     public function rules()
