@@ -214,7 +214,7 @@ class SourceController extends Controller
                     ->where('campaign_id', $request->input('campaign_id'));
 
             if(auth()->user()->is_channel_partner) {
-                $assigned_sources = auth()->user()->sources;
+                $assigned_sources = auth()->user()->sources ?? [];
                 $query->whereIn('id', $assigned_sources);
             }
             

@@ -58,7 +58,10 @@ class AppServiceProvider extends ServiceProvider
         */
         View::composer('*', function ($view) {
 
-            $__global_clients_filter = request()->session()->get('__global_clients_filter', []);
+            $__global_clients_filter = [];
+            if (session()->has('__global_clients_filter')) {
+                $__global_clients_filter = request()->session()->get('__global_clients_filter', []);
+            }
             $__global_clients_drpdwn = Client::pluck('name', 'id')->toArray();
             
             $view->with(compact('__global_clients_filter', '__global_clients_drpdwn'));
