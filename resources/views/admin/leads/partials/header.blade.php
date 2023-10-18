@@ -40,7 +40,7 @@
                             </select>
                         </div>
                     @endif
-                    @if(!(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
+                    @if(auth()->user()->checkPermission('campaign_view'))
                         <div class="col-md-3 campaigns_div">
                             <label for="campaign_id">
                                 @lang('messages.campaigns')
@@ -53,7 +53,7 @@
                             </select>
                         </div>
                     @endif
-                    @if(!(auth()->user()->is_agency || auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
+                    @if(auth()->user()->checkPermission('campaign_view'))
                         <div class="col-md-3 sources_div">
                             <label for="source_id">
                                 Source
