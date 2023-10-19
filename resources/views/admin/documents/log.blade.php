@@ -50,12 +50,20 @@
                                                     @endif
                                                     @if(!empty($activity->lead) && (!empty($activity->lead->email) || !empty($activity->lead->additional_email)))
                                                         <br>
-                                                        {{$activity->lead->email ?? ''}}
+                                                        @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($activity->lead->email))
+                                                            {{ maskEmail($activity->lead->email) }}
+                                                        @else
+                                                            {{$activity->lead->email ?? ''}}
+                                                        @endif
                                                         @if(!empty($activity->lead->additional_email))
                                                             @if(!empty($activity->lead->email))
                                                                 {{'/'}}
                                                             @endif
-                                                            {{$activity->lead->additional_email}}
+                                                            @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($activity->lead->additional_email))
+                                                                {{ maskEmail($activity->lead->additional_email) }}
+                                                            @else
+                                                                {{$activity->lead->additional_email ?? ''}}
+                                                            @endif
                                                         @endif
                                                     @endif
                                                 </td>

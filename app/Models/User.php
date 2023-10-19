@@ -230,7 +230,7 @@ class User extends Authenticatable
         } else if(in_array($this->user_type, ['CRMTeam'])) {
             return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_view', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['CRMHead'])) {
-            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'lead_webhook_response', 'number_and_email_masking']);
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['LegalTeam'])) {
             return in_array($permission, ['project_view', 'profile']);
         }  else if(in_array($this->user_type, ['BankingTeam'])) {
