@@ -58,7 +58,7 @@
                             <label for="source_id">
                                 Source
                             </label>
-                            <select class="search form-control" name="source" id="source_id">
+                            <select class="search form-control select2" name="source" id="source_id">
                                 <option value>{{ trans('global.all') }}</option>
                                 @foreach($sources as $source)
                                     <option value="{{$source->id}}" @if(isset($filters['source']) && $filters['source'] == $item->id) selected @endif>{{ $source->name }}</option>

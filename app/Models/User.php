@@ -222,15 +222,15 @@ class User extends Authenticatable
         } else if(in_array($this->user_type, ['EEPLMgmt'])) {
             return in_array($permission, ['document_view', 'document_send', 'document_create', 'document_edit', 'user_view', 'user_create', 'agency_view', 'project_view', 'campaign_view', 'source_view', 'source_create', 'calendar', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document']);
         } else if(in_array($this->user_type, ['PresalesHead'])) {
-            return in_array($permission, ['document_view', 'document_send', 'project_view', 'user_view', 'calendar', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'user_view', 'calendar', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['Presales'])) {
-            return in_array($permission, ['document_view', 'document_send', 'project_view', 'calendar', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'calendar', 'profile', 'lead_create',  'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['Sales'])) {
             return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['CRMTeam'])) {
             return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_view', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['CRMHead'])) {
-            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_edit', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'lead_webhook_response', 'number_and_email_masking']);
+            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'lead_webhook_response', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['LegalTeam'])) {
             return in_array($permission, ['project_view', 'profile']);
         }  else if(in_array($this->user_type, ['BankingTeam'])) {
