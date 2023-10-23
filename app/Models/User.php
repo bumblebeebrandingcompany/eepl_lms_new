@@ -247,7 +247,7 @@ class User extends Authenticatable
         }  else if(in_array($this->user_type, ['ChannelPartnerManager'])) {
             return in_array($permission, ['document_view', 'document_send', 'user_view', 'cp_only_view', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['SiteExecutive'])) {
-            return in_array($permission, ['eoi_view', 'eoi_create']);
+            return in_array($permission, ['eoi_view', 'eoi_create', 'profile', 'lead_create']);
         }
 
         return false;
