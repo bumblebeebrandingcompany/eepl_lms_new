@@ -208,6 +208,16 @@ class User extends Authenticatable
     }
 
     /**
+     * is site executive?
+     *
+     * @return boolean
+     */
+    public function getIsSiteExecutiveAttribute()
+    {
+        return $this->user_type == 'SiteExecutive';
+    }
+    
+    /**
      * check user permission
      *
      * @return boolean

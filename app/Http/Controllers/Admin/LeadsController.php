@@ -217,6 +217,23 @@ class LeadsController extends Controller
             abort(403, 'Unauthorized.');
         }
 
+        if(
+            auth()->user()->is_site_executive && 
+            (
+                empty(request()->get('project_id')) || 
+                empty(request()->get('phone')) || 
+                (
+                    empty(request()->get('action')) ||
+                    (
+                        !empty(request()->get('action')) &&
+                        request()->get('action') != 'cfoi'
+                    )
+                )
+            )
+        ){
+            abort(403, 'Unauthorized.');
+        }
+        
         $project_ids = $this->util->getUserProjects(auth()->user());
         $campaign_ids = $this->util->getCampaigns(auth()->user());
 
