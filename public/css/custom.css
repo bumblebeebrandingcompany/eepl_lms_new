@@ -111,3 +111,7 @@ img{
 .word-break {
     word-break: break-word !important;
 }
+
+.overflow-y-scroll-auto {
+    overflow-y: auto !important;
+}

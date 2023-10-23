@@ -67,18 +67,6 @@
                     {{ $lead->project->name ?? '' }}
                 </a>
             </li>
-            <li class="list-group-item">
-                <b>{{ trans('cruds.lead.fields.campaign') }}</b>
-                <a class="float-right">
-                    {{ $lead->campaign->campaign_name ?? '' }}
-                </a>
-            </li>
-            <li class="list-group-item">
-                <b>{{ trans('messages.source') }}</b>
-                <a class="float-right">
-                    {{ $lead->source->name ?? '' }}
-                </a>
-            </li>
             @php
                 $lead_info = $lead->lead_info;
                 if (
@@ -130,50 +118,10 @@
                 <li class="list-group-item">
                     <b>{!!ucfirst(str_replace('_', ' ', $key))!!}</b>
                     <a class="float-right">
-                        {!! $value !!}
+                        {!! nl2br($value) !!}
                     </a>
                 </li>
             @endforeach
-            <li class="list-group-item">
-                <b>@lang('messages.sell_do_created_date')</b>
-                <a class="float-right">
-                    @if(!empty($lead->sell_do_lead_created_at))
-                        {{@format_datetime($lead->sell_do_lead_created_at)}}
-                    @endif
-                </a>
-            </li>
-            <li class="list-group-item">
-                <b>@lang('messages.sell_do_status')</b>
-                <a class="float-right">
-                    {!! $lead->sell_do_status ?? '' !!}
-                </a>
-            </li>
-            @if(!(auth()->user()->is_channel_partner || auth()->user()->is_channel_partner_manager))
-                <li class="list-group-item">
-                    <b>@lang('messages.sell_do_stage')</b>
-                    <a class="float-right">
-                        {!! $lead->sell_do_stage ?? '' !!}
-                    </a>
-                </li>
-            @endif
-            <li class="list-group-item">
-                <b>@lang('messages.customer_comments')</b>
-                <a class="float-right">
-                    {!! $lead->comments ?? '' !!}
-                </a>
-            </li>
-            <li class="list-group-item">
-                <b>@lang('messages.cp_comments')</b>
-                <a class="float-right">
-                    {!! $lead->cp_comments ?? '' !!}
-                </a>
-            </li>
-            <li class="list-group-item">
-                <b>@lang('messages.added_by')</b>
-                <a class="float-right">
-                    {{ $lead->createdBy ? $lead->createdBy->name : ''}}
-                </a>
-            </li>
         </ul>
     </div>
 </div>

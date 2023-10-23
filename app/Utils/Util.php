@@ -610,7 +610,8 @@ class Util
             'CRMHead' => 'CRMH',
             'LegalTeam' => 'LET',
             'BankingTeam' => 'BAT',
-            'Customer' => 'CUST'
+            'Customer' => 'CUST',
+            'SiteExecutive' => 'SE',
         ];
         return $this->generateReferenceNumber($user->id, $prefixes[$user->user_type]);
     }

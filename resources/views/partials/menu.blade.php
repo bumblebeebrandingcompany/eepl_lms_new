@@ -1,4 +1,4 @@
-<aside class="main-sidebar sidebar-dark-primary elevation-4" style="min-height: 917px;">
+<aside class="main-sidebar sidebar-dark-primary elevation-4 overflow-y-scroll-auto" style="min-height: 917px;">
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
         <span class="brand-text font-weight-light">
@@ -234,6 +234,16 @@
                             </i>
                             <p>
                                 {{ trans('cruds.lead.title') }}
+                            </p>
+                        </a>
+                    </li>
+                @endif
+                @if(auth()->user()->checkPermission('eoi_view'))
+                    <li class="nav-item">
+                        <a class="nav-link {{  request()->routeIs('admin.eoi.*') ? 'active' : '' }}" href="{{ route('admin.eoi.index') }}">
+                            <i class="fas fa-wind nav-icon"></i>
+                            <p>
+                                {{ trans('messages.expression_of_interest') }}
                             </p>
                         </a>
                     </li>

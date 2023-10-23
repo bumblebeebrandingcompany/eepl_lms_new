@@ -118,6 +118,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::post('documents/ckmedia', 'DocumentController@storeCKEditorImages')->name('documents.storeCKEditorImages');
     Route::delete('documents/destroy', 'DocumentController@massDestroy')->name('documents.massDestroy');
     Route::resource('documents', 'DocumentController');
+
+    // Expression Of Interest
+    Route::get('eoi-lead-detail', 'ExpressionOfInterestController@getLeadDetails')->name('eoi.lead.detail');
+    Route::delete('eoi/destroy', 'ExpressionOfInterestController@massDestroy')->name('eoi.massDestroy');
+    Route::resource('eoi', 'ExpressionOfInterestController');
 });
 Route::group(['prefix' => 'profile', 'as' => 'profile.', 'namespace' => 'Auth', 'middleware' => ['auth']], function () {
     // Change password

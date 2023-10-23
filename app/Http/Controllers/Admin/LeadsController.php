@@ -227,13 +227,15 @@ class LeadsController extends Controller
                         ->pluck('campaign_name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $project_id = request()->get('project_id', null);
+        $phone = request()->get('phone', null);
+        $action = request()->get('action', null);
 
-        return view('admin.leads.create', compact('campaigns', 'projects', 'project_id'));
+        return view('admin.leads.create', compact('campaigns', 'projects', 'project_id', 'phone', 'action'));
     }
 
     public function store(StoreLeadRequest $request)
     {
-        $input = $request->except(['_method', '_token']);
+        $input = $request->except(['_method', '_token', 'redirect_to']);
         $input['lead_details'] = $this->getLeadDetailsKeyValuePair($input['lead_details'] ?? []);
         $input['created_by'] = auth()->user()->id;
 
@@ -258,6 +260,10 @@ class LeadsController extends Controller
             $this->util->sendApiWebhook($lead->id);
         }
         
+        if(!empty($request->get('redirect_to')) && $request->get('redirect_to') == 'cfoi') {
+            return redirect()->route('admin.eoi.create', ['phone' => $lead->phone]);
+        }
+
         return redirect()->route('admin.leads.index');
     }
 

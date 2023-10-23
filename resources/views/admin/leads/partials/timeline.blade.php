@@ -20,6 +20,8 @@
                                     bg-info
                                 @elseif($event->event_type == 'document_sent')
                                     bg-dark
+                                @elseif($event->event_type == 'expression_of_interest')
+                                    bg-success
                                 @else
                                     bg-olive
                                 @endif">
@@ -45,6 +47,8 @@
                             <i class="far fa-sticky-note bg-info"></i>
                         @elseif($event->event_type == 'document_sent')
                             <i class="fas fa-file-alt bg-dark"></i>
+                        @elseif($event->event_type == 'expression_of_interest')
+                            <i class="fas fa-wind bg-success"></i>
                         @else
                             <i class="far fa-check-circle bg-olive"></i>
                         @endif
@@ -69,6 +73,8 @@
                                     text-info
                                 @elseif($event->event_type == 'document_sent')
                                     text-dark
+                                @elseif($event->event_type == 'expression_of_interest')
+                                    text-success
                                 @else
                                     text-olive
                                 @endif">
@@ -96,6 +102,8 @@
                                 @includeIf('admin.leads.partials.event_details.note_added')
                             @elseif($event->event_type == 'document_sent')
                                 @includeIf('admin.leads.partials.event_details.document_sent')
+                            @elseif($event->event_type == 'expression_of_interest')
+                                @includeIf('admin.leads.partials.event_details.expression_of_interest', ['enable_header' => true])
                             @else
                                 {{json_encode($event->webhook_data ?? [])}}
                             @endif

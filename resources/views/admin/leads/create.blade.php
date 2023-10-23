@@ -11,6 +11,9 @@
     <div class="card-body">
         <form method="POST" action="{{ route("admin.leads.store") }}" enctype="multipart/form-data">
             @csrf
+            @if(!empty($action))
+                <input type="hidden" name="redirect_to" value="{{$action}}" class="form-control">
+            @endif
             <div class="form-group">
                 <label for="name" class="required">
                     @lang('messages.name')
@@ -33,7 +36,7 @@
                 <label for="phone" @if(!auth()->user()->is_superadmin) class="required" @endif>
                     @lang('messages.phone')
                 </label>
-                <input type="text" name="phone" id="phone" value="{{ old('phone') }}" class="form-control input_number" @if(!auth()->user()->is_superadmin) required @endif>
+                <input type="text" name="phone" id="phone" value="{{ old('phone') ? old('phone') : ($phone ?? '') }}" class="form-control input_number" @if(!auth()->user()->is_superadmin) required @endif>
             </div>
             <div class="form-group">
                 <label for="secondary_phone_key">
@@ -214,6 +217,10 @@
                 }
             });
         });
+
+        @if(!empty($project_id))
+            getCampaigns();
+        @endif
     });
 </script>
 @endsection

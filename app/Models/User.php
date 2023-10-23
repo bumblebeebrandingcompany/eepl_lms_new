@@ -51,14 +51,15 @@ class User extends Authenticatable
         'ChannelPartner' => 'Channel Partner',
         'ChannelPartnerManager' => 'Channel Partner Manager',
         'EEPLMgmt' => 'EEPL Mgmt',
-        'PresalesHead' => 'Presales head',
-        'Presales' => 'Pre sales',
+        'PresalesHead' => 'Presales Head',
+        'Presales' => 'Pre Sales',
         'Sales' => 'Sales',
         'CRMTeam' => 'CRM Team',
-        'CRMHead' => 'CRM head',
-        'LegalTeam' => 'Legal team',
-        'BankingTeam' => 'Banking team',
-        'Customer' => 'Customer'
+        'CRMHead' => 'CRM Head',
+        'LegalTeam' => 'Legal Team',
+        'BankingTeam' => 'Banking Team',
+        'Customer' => 'Customer',
+        'SiteExecutive' => 'Site Executive',
     ];
 
     /**
@@ -245,6 +246,8 @@ class User extends Authenticatable
             return in_array($permission, ['project_view', 'profile', 'lead_create', 'lead_view', 'lead_profile', 'lead_view_own_only']);
         }  else if(in_array($this->user_type, ['ChannelPartnerManager'])) {
             return in_array($permission, ['document_view', 'document_send', 'user_view', 'cp_only_view', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'number_and_email_masking']);
+        } else if(in_array($this->user_type, ['SiteExecutive'])) {
+            return in_array($permission, ['eoi_view', 'eoi_create']);
         }
 
         return false;
