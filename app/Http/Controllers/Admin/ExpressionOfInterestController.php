@@ -186,8 +186,13 @@ class ExpressionOfInterestController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        $event = LeadEvents::with('lead', 'lead.project')
-                    ->findOrFail($id);
+        $query = LeadEvents::with('lead', 'lead.project');
+        
+        if(!auth()->user()->is_superadmin) {
+            $query->where('lead_events.created_by', auth()->user()->id);
+        }
+
+        $event = $query->findOrFail($id);
 
         return view('admin.eoi.show')
             ->with(compact('event'));
