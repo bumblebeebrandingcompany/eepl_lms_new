@@ -325,7 +325,7 @@ class ExpressionOfInterestController extends Controller
                 return [
                     'msg' => 'Lead is not found with this number. Please create a new lead.',
                     'success' => false,
-                    'redirect_url' => route('admin.leads.create', ['project_id' => 9, 'phone' => $search_term, 'action' => 'cfoi'])
+                    'redirect_url' => route('admin.leads.create', ['project_id' => 9, 'phone' => $search_term, 'action' => 'ceoi'])
                 ];
             }
 

@@ -226,7 +226,7 @@ class LeadsController extends Controller
                     empty(request()->get('action')) ||
                     (
                         !empty(request()->get('action')) &&
-                        request()->get('action') != 'cfoi'
+                        request()->get('action') != 'ceoi'
                     )
                 )
             )
@@ -277,7 +277,7 @@ class LeadsController extends Controller
             $this->util->sendApiWebhook($lead->id);
         }
         
-        if(!empty($request->get('redirect_to')) && $request->get('redirect_to') == 'cfoi') {
+        if(!empty($request->get('redirect_to')) && $request->get('redirect_to') == 'ceoi') {
             return redirect()->route('admin.eoi.create', ['phone' => $lead->phone]);
         }
 
