@@ -82,7 +82,7 @@
         <label for="Sales_Person_Details_Sell_do_name">
             Sales Person Name
         </label>
-        <input type="text" name="Sales_Person_Details[name]" id="Sales_Person_Details_Sell_do_name" class="form-control" value="{{$Sales_Person_Details['name'] ?? ''}}">
+        <input type="text" name="Sales_Person_Details[Sales_Person_Name]" id="Sales_Person_Details_Sell_do_name" class="form-control" value="{{$Sales_Person_Details['Sales_Person_Name'] ?? ''}}">
     </div>
 </div>
 <div class="col-md-6">
@@ -90,7 +90,7 @@
         <label for="Sales_Person_Details_Sell_do_ID">
             Sales Person ID
         </label>
-        <input type="text" name="Sales_Person_Details[Sell_do_ID]" id="Sales_Person_Details_Sell_do_ID" class="form-control" value="{{$Sales_Person_Details['Sell_do_ID'] ?? ''}}">
+        <input type="text" name="Sales_Person_Details[Sales_Person_ID]" id="Sales_Person_Details_Sell_do_ID" class="form-control" value="{{$Sales_Person_Details['Sales_Person_ID'] ?? ''}}">
     </div>
 </div>
 <div class="col-md-6">
