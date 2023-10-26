@@ -415,7 +415,18 @@ class Util
         if($for_cp) {
             $sources_arr = [];
             foreach ($sources as $source) {
-                $sources_arr[$source->id] = $source->project->name.' | '.$source->campaign->campaign_name.' | '.$source->name;
+                $title = '';
+                if(!empty($source->project)) {
+                    $title = $source->project->name . ' | ';
+                }
+
+                if(!empty($source->campaign)) {
+                    $title .= $source->campaign->campaign_name . ' | ';
+                }
+
+                $title .= $source->name;
+
+                $sources_arr[$source->id] = $title;
             }
             return $sources_arr;
         }

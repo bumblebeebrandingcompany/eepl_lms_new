@@ -24,18 +24,17 @@ $(".adv_amount_date").datetimepicker({
     format: 'YYYY-MM-DD'
 });
 
-function getLeadDetails(text, project_id) {
+function getLeadDetails(text) {
     $.ajax({
         method:"GET",
         url: "{{route('admin.eoi.lead.detail')}}",
         data: {
-            search_term: text,
-            project_id: project_id
+            search_term: text
         },
         dataType: "json",
         success: function(response) {
             if(response.success) {
-                $(".basic_common_details_of_applicant").html(response.html);
+                $(".sell_do_and_lead_info").html(response.html);
                 setTimeout(() => {
                     $(".applicant_dob").datetimepicker({
                         ignoreReadonly: true,
@@ -50,18 +49,18 @@ function getLeadDetails(text, project_id) {
                     }, 100);
                 }
             }
+            toggleInfoSection();
         }
     });
 }
 
 $(document).on('click', ".search_lead", function() {
     let text = $("#search_phone").val();
-    let project_id = $("#project_id").val();
     if(text.length < 10) {
         alert('Enter 10 digit valid number');
         return;
     }
-    getLeadDetails(text, project_id);
+    getLeadDetails(text);
 });
 
 function togglePlanHomeConstructionDiv() {
@@ -151,8 +150,19 @@ toggleLoanInterestedDiv();
 
 @if(!empty($phone))
     let text = $("#search_phone").val();
-    let project_id = $("#project_id").val();
-    getLeadDetails(text, project_id);
+    getLeadDetails(text);
 @endif
+
+function toggleInfoSection() {
+    if($("#lead_id").val()) {
+        $(".info_section").show();
+        $("button").show();
+    } else{
+        $(".info_section").hide();
+        $("button").hide();
+    }
+}
+
+toggleInfoSection();
 
 $("#eoi").validate();

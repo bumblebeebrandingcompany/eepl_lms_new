@@ -37,12 +37,18 @@
                     @lang('messages.phone')
                 </label>
                 <input type="text" name="phone" id="phone" value="{{ old('phone') ? old('phone') : ($phone ?? '') }}" class="form-control input_number" @if(!auth()->user()->is_superadmin) required @endif>
+                <span class="help-block text-muted">
+                    Enter phone number including country code without + sign.
+                </span>
             </div>
             <div class="form-group">
                 <label for="secondary_phone_key">
                     @lang('messages.secondary_phone_key')
                 </label>
                 <input type="text" name="secondary_phone" id="secondary_phone_key" value="{{ old('secondary_phone')}}" class="form-control input_number">
+                <span class="help-block text-muted">
+                    Enter phone number including country code without + sign.
+                </span>
             </div>
             <div class="form-group">
                 <label class="required" for="project_id">{{ trans('cruds.lead.fields.project') }}</label>

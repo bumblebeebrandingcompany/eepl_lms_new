@@ -4,29 +4,13 @@
 @endif
 <div class="col-md-6">
     <div class="form-group">
-        <label for="lead_details_pan]">
-            @lang('messages.pan')
-        </label>
-        <input type="text" name="lead_details[pan]" id="lead_details_pan" value="@if(!empty($lead) && !empty($lead->lead_info['pan'])) {{$lead->lead_info['pan']}} @endif" class="form-control">
-    </div>
-</div>
-<div class="col-md-6">
-    <div class="form-group">
-        <label for="lead_details_age">
-            DOB
-        </label>
-        <input type="text" name="lead_details[dob]" id="lead_details_age" value="@if(!empty($lead) && !empty($lead->lead_info['dob'])) {{$lead->lead_info['dob']}} @endif" class="form-control applicant_dob" readonly>
-    </div>
-</div>
-<div class="col-md-6">
-    <div class="form-group">
         <label for="lead_details_sex" class="required">
-            @lang('messages.sex')
+            @lang('messages.gender')
         </label>
-        <select name="lead_details[sex]" id="lead_details_sex" class="form-control" required>
+        <select name="lead_details[gender]" id="lead_details_sex" class="form-control" required>
             <option value="">@lang('messages.please_select')</option>
-            <option value="Male" @if(!empty($lead) && !empty($lead->lead_info['sex']) && $lead->lead_info['sex'] == 'Male') selected @endif>Male</option>
-            <option value="Female" @if(!empty($lead) && !empty($lead->lead_info['sex']) && $lead->lead_info['sex'] == 'Female') selected @endif>Female</option>
+            <option value="Male" @if(!empty($lead) && !empty($lead->lead_info['gender']) && $lead->lead_info['gender'] == 'Male') selected @endif>Male</option>
+            <option value="Female" @if(!empty($lead) && !empty($lead->lead_info['gender']) && $lead->lead_info['gender'] == 'Female') selected @endif>Female</option>
         </select>
     </div>
 </div>
@@ -72,5 +56,21 @@
             Correspondence Address
         </label>
         <textarea name="lead_details[correspondence_address]" id="lead_details_Correspondence_Address" class="form-control" cols="2">@if(!empty($lead) && !empty($lead->lead_info['correspondence_address'])) {!!$lead->lead_info['correspondence_address']!!} @endif</textarea>
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="form-group">
+        <label for="lead_details_pan]">
+            @lang('messages.pan')
+        </label>
+        <input type="text" name="lead_details[pan]" id="lead_details_pan" value="@if(!empty($lead) && !empty($lead->lead_info['pan'])) {{$lead->lead_info['pan']}} @endif" class="form-control">
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="form-group">
+        <label for="lead_details_age">
+            DOB
+        </label>
+        <input type="text" name="lead_details[dob]" id="lead_details_age" value="@if(!empty($lead) && !empty($lead->lead_info['dob'])) {{$lead->lead_info['dob']}} @endif" class="form-control applicant_dob" readonly>
     </div>
 </div>

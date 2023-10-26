@@ -1,5 +1,17 @@
 @php
-    $payload = $event->webhook_data ?? [];
+    $webhook_data = $event->webhook_data ?? [];
+    if(!empty($webhook_data['source_id'])) {
+        $source = \App\Models\Source::find($webhook_data['source_id']);
+        $webhook_data['source'] = !empty($source) ? $source->name : '';
+        unset($webhook_data['source_id']);
+    }
+    $webhook_data['sub source'] = $webhook_data['sub_source'] ?? '';
+    unset($webhook_data['sub_source']);
+    if(!empty($webhook_data['campaign_id'])) {
+        $campaign = \App\Models\Campaign::find($webhook_data['campaign_id']);
+        $webhook_data['campaign'] = !empty($campaign) ? $campaign->campaign_name : '';
+        unset($webhook_data['campaign_id']);
+    }
 @endphp
 <div class="row">
     <div class="col-md-12">
@@ -18,7 +30,7 @@
                     </thead>
                 @endif
                 <tbody>
-                    @forelse($payload as $label => $value)
+                    @forelse($webhook_data as $label => $value)
                         @if(
                             !empty($label) && 
                             !empty($value)

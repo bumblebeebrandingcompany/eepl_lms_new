@@ -259,14 +259,14 @@ $(document).on('input', 'input.input_number', function(event) {
     if (inputValue.startsWith('+')) {
         // Allow the plus sign only at the beginning
         if (digitsOnly.length <= 12) {
-            $(this).val('+' + digitsOnly);
+            $(this).val(digitsOnly);
         } else {
             // Limit to 12 digits after the plus sign
-            $(this).val('+' + digitsOnly.substring(0, 12));
+            $(this).val(digitsOnly.substring(0, 12));
         }
     } else {
-        // Limit to 10 digits
-        $(this).val(digitsOnly.substring(0, 10));
+        // Limit to 12 digits with country code
+        $(this).val(digitsOnly.substring(0, 12));
     }
 })
 });

@@ -37,7 +37,8 @@
                                 </div>
                             </div>
                             <span class="help-block text-muted">
-                                {{ trans('messages.search_lead_by_phone') }}, Enter 10 digit number without country code.
+                                {{ trans('messages.search_lead_by_phone') }} <br>
+                                Enter phone number including country code without + sign.
                             </span>
                         </div>
                     </div>
@@ -46,39 +47,40 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row info_section sell_do_and_lead_info">
+    @includeIf('admin.eoi.partials.sell_do_and_lead_info')
+</div>
+<div class="row info_section">
     <div class="col-md-12">
-        <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h3 class="card-title">
-                    @lang('messages.basic_details_of_applicant')
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="row basic_common_details_of_applicant">
-                    @includeIf('admin.eoi.partials.basic_details_of_applicant')
+        <div id="basic_details_of_co_applicant_accordion">
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h4 class="card-title w-100">
+                        <a class="d-block w-100 collapsed" data-toggle="collapse" href="#basic_details_of_co_applicant_accordion_collapse" aria-expanded="false">
+                            <i class="fas fa-plus"></i>
+                            Add Co-Applicant
+                        </a>
+                    </h4>
+                </div>
+                <div id="basic_details_of_co_applicant_accordion_collapse" class="collapse" data-parent="#basic_details_of_co_applicant_accordion">
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <h5>
+                                    @lang('messages.basic_details_of_co_applicant')
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="row basic_common_details_of_co_applicant">
+                            @includeIf('admin.eoi.partials.basic_common_details_of_co_applicant')
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h3 class="card-title">
-                    @lang('messages.basic_details_of_co_applicant')
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="row basic_common_details_of_co_applicant">
-                    @includeIf('admin.eoi.partials.basic_common_details_of_co_applicant')
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
+<div class="row info_section">
     <div class="col-md-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
@@ -101,16 +103,16 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row info_section">
     <div class="col-md-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
                 <h3 class="card-title">
-                    Application Details
+                    EOI Application Date
                 </h3>
             </div>
             @php
-                $Application_Details = $event->webhook_data['Application_Details'] ?? [];
+                $EOI_Application_Date = $event->webhook_data['EOI_Application_Date'] ?? [];
             @endphp
             <div class="card-body">
                 <div class="row">
@@ -119,7 +121,7 @@
                             <label for="Application_date">
                                 Application date
                             </label>
-                            <input type="text" name="Application_Details[Application_date]" id="Application_date" class="form-control application_date" readonly value="{{$Application_Details['Application_date'] ?? ''}}">
+                            <input type="text" name="EOI_Application_Date[Application_date]" id="Application_date" class="form-control application_date" readonly value="{{$EOI_Application_Date['Application_date'] ?? ''}}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -127,7 +129,7 @@
                             <label for="Application_time">
                                 Application time
                             </label>
-                            <input type="text" name="Application_Details[Application_time]" id="Application_time" class="form-control application_time" readonly value="{{$Application_Details['Application_time'] ?? ''}}">
+                            <input type="text" name="EOI_Application_Date[Application_time]" id="Application_time" class="form-control application_time" readonly value="{{$EOI_Application_Date['Application_time'] ?? ''}}">
                         </div>
                     </div>
                 </div>
@@ -135,7 +137,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row info_section">
     <div class="col-md-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
@@ -181,7 +183,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row info_section">
     <div class="col-md-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
@@ -231,7 +233,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row info_section">
     <div class="col-md-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
@@ -294,7 +296,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<!-- <div class="row info_section">
    <div class="col-md-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
@@ -312,7 +314,7 @@
                             <label for="Sales_Person_Details_Sell_do_ID">
                                 Sell.do ID
                             </label>
-                            <input type="text" name="Sales_Person_Details[Sell_do_ID]" id="Sales_Person_Details_Sell_do_ID" class="form-control" value="{{$Sales_Person_Details['Sell_do_ID'] ?? ''}}">
+                            <input type="text" name="Sales_Person_Details[Sell_do_ID]" id="Sales_Person_Details_Sell_do_ID" class="form-control" value="{{$Sales_Person_Details['Sell_do_ID'] ?? ''}}" disabled>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -320,15 +322,15 @@
                             <label for="Sales_Person_Details_Sell_do_name">
                                 Name
                             </label>
-                            <input type="text" name="Sales_Person_Details[name]" id="Sales_Person_Details_Sell_do_name" class="form-control" value="{{$Sales_Person_Details['name'] ?? ''}}">
+                            <input type="text" name="Sales_Person_Details[name]" id="Sales_Person_Details_Sell_do_name" class="form-control" value="{{$Sales_Person_Details['name'] ?? ''}}" disabled>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
    </div>
-</div>
-<div class="row">
+</div> -->
+<div class="row info_section">
    <div class="col-md-12">
         <div class="card card-primary card-outline">
             <div class="card-body">

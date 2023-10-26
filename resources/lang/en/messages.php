@@ -144,4 +144,5 @@ return [
     'residential_status' => 'Residential Status',
     'company_name' => 'Company Name',
     'basic_details_of_co_applicant' => 'Basic Details of Co-Applicant',
+    'gender' => 'Gender',
 ];

@@ -31,4 +31,9 @@ class LeadEvents extends Model
     {
         return $this->belongsTo(Lead::class, 'lead_id');
     }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id');
+    }
 }

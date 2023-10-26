@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\MassDestroyFOIRequest;
 use View;
 use App\Models\Campaign;
+use App\Models\Source;
 class ExpressionOfInterestController extends Controller
 {
     /**
@@ -44,7 +45,7 @@ class ExpressionOfInterestController extends Controller
         if ($request->ajax()) {
             $query = LeadEvents::where('event_type', 'expression_of_interest')
                         ->join('leads', 'lead_events.lead_id', '=', 'leads.id')
-                        ->leftJoin('projects', 'leads.project_id', '=', 'projects.id')
+                        ->leftJoin('projects', 'lead_events.project_id', '=', 'projects.id')
                         ->select(['lead_events.id', 'lead_events.lead_id', 'lead_events.created_at',
                         'leads.ref_num', 'leads.name as lead_name', 'projects.name as project_name']);
 
@@ -140,18 +141,21 @@ class ExpressionOfInterestController extends Controller
             DB::beginTransaction();
 
             $lead_id = $request->input('lead_id');
-            $input = $request->only(['project_id', 'name', 'email', 'additional_email', 'phone', 'secondary_phone']);
+            $input = $request->only(['additional_email', 'secondary_phone']);
             $lead_details = $request->input('lead_details');
             
             // update lead details
             $lead = Lead::findOrFail($lead_id);
-            $lead_details = !empty($lead->lead_info) ? array_merge($lead->lead_info, $lead_details) : $lead_details;
-            $lead->update(['lead_details' => $lead_details]);
+            $input['lead_details'] = !empty($lead->lead_info) ? array_merge($lead->lead_info, $lead_details) : $lead_details;
+            $lead->update($input);
 
             $webhook_data = [
+                'source_id' => $request->input('source_id'),
+                'sub_source' => $request->input('sub_source'),
+                'campaign_id' => $request->input('campaign_id'),
                 'details_of_co_applicant' => $request->input('details_of_co_applicant'),
                 'Plot_Details' => $request->input('Plot_Details'),
-                'Application_Details' => $request->input('Application_Details'),
+                'EOI_Application_Date' => $request->input('EOI_Application_Date'),
                 'Loan' => $request->input('Loan'),
                 'Advance_Amount' => $request->input('Advance_Amount'),
                 'Financing_Plan' => $request->input('Financing_Plan'),
@@ -165,7 +169,8 @@ class ExpressionOfInterestController extends Controller
                 'lead_id' => $lead->id,
                 'event_type' => 'expression_of_interest',
                 'created_by' => auth()->user()->id,
-                'webhook_data' => $webhook_data
+                'webhook_data' => $webhook_data,
+                'project_id' => $request->input('project_id', 9)
             ]);
 
             DB::commit();
@@ -186,7 +191,7 @@ class ExpressionOfInterestController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        $query = LeadEvents::with('lead', 'lead.project');
+        $query = LeadEvents::with('lead', 'project');
         
         if(!auth()->user()->is_superadmin) {
             $query->where('lead_events.created_by', auth()->user()->id);
@@ -214,8 +219,16 @@ class ExpressionOfInterestController extends Controller
                     ->pluck('name', 'id')
                     ->toArray();
 
+        $campaigns = Campaign::where('project_id', 9)
+                    ->pluck('campaign_name', 'id')
+                    ->prepend(trans('global.pleaseSelect'), '');
+
+        $sources = Source::where('project_id', 9)
+                    ->pluck('name', 'id')
+                    ->prepend(trans('global.pleaseSelect'), '');
+
         return view('admin.eoi.edit')
-            ->with(compact('lead_event', 'projects'));
+            ->with(compact('lead_event', 'projects', 'campaigns', 'sources'));
     }
 
     /**
@@ -230,12 +243,15 @@ class ExpressionOfInterestController extends Controller
         try {
             DB::beginTransaction();
 
-            $input = $request->only(['project_id', 'name', 'email', 'additional_email', 'phone', 'secondary_phone']);
+            $input = $request->only(['additional_email', 'secondary_phone']);
             $lead_details = $request->input('lead_details');
             $webhook_data = [
+                'source_id' => $request->input('source_id'),
+                'sub_source' => $request->input('sub_source'),
+                'campaign_id' => $request->input('campaign_id'),
                 'details_of_co_applicant' => $request->input('details_of_co_applicant'),
                 'Plot_Details' => $request->input('Plot_Details'),
-                'Application_Details' => $request->input('Application_Details'),
+                'EOI_Application_Date' => $request->input('EOI_Application_Date'),
                 'Loan' => $request->input('Loan'),
                 'Advance_Amount' => $request->input('Advance_Amount'),
                 'Financing_Plan' => $request->input('Financing_Plan'),
@@ -245,13 +261,14 @@ class ExpressionOfInterestController extends Controller
 
             // update lead details
             $lead = Lead::findOrFail($id);
-            $lead_details = !empty($lead->lead_info) ? array_merge($lead->lead_info, $lead_details) : $lead_details;
-            $lead->update(['lead_details' => $lead_details]);
+            $input['lead_details'] = !empty($lead->lead_info) ? array_merge($lead->lead_info, $lead_details) : $lead_details;
+            $lead->update($input);
 
             LeadEvents::where('lead_id', $id)
                 ->where('id', $request->input('lead_event_id'))
                 ->update([
-                    'webhook_data' => $webhook_data
+                    'webhook_data' => $webhook_data,
+                    'project_id' => $request->input('project_id', 9)
                 ]);
 
             DB::commit();
@@ -298,10 +315,7 @@ class ExpressionOfInterestController extends Controller
     {
         if($request->ajax()) {
             $search_term = $request->input('search_term');
-            $project_id = $request->input('project_id');
-
-            $lead = Lead::where('project_id', $project_id)
-                    ->where(function ($query) use($search_term) {
+            $lead = Lead::where(function ($query) use($search_term) {
                         $query->where('phone', 'like', '%'.$search_term.'%')
                             ->orWhere('secondary_phone', 'like', '%'.$search_term.'%');
                     })
@@ -315,7 +329,20 @@ class ExpressionOfInterestController extends Controller
                 ];
             }
 
-            $html = View::make('admin.eoi.partials.basic_details_of_applicant', ['lead' => $lead])
+            $project_ids = $this->util->getUserProjects(auth()->user());
+            $projects = Project::whereIn('id', $project_ids)
+                        ->pluck('name', 'id')
+                        ->toArray();
+
+            $campaigns = Campaign::where('project_id', 9)
+                            ->pluck('campaign_name', 'id')
+                            ->prepend(trans('global.pleaseSelect'), '');
+
+            $sources = Source::where('project_id', 9)
+                            ->pluck('name', 'id')
+                            ->prepend(trans('global.pleaseSelect'), '');
+
+            $html = View::make('admin.eoi.partials.sell_do_and_lead_info', ['lead' => $lead, 'projects' => $projects, 'campaigns' => $campaigns, 'sources' => $sources])
                     ->render();
             return [
                 'html' => $html,

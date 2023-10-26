@@ -4,30 +4,13 @@
 @includeIf('admin.eoi.partials.common_details_of_co_applicant')
 <div class="col-md-6">
     <div class="form-group">
-        <label for="details_of_co_applicant_pan">
-            @lang('messages.pan')
-        </label>
-        <input type="text" name="details_of_co_applicant[pan]" id="details_of_co_applicant_pan" class="form-control"
-            value="{{$details_of_co_applicant['pan'] ?? ''}}">
-    </div>
-</div>
-<div class="col-md-6">
-    <div class="form-group">
-        <label for="details_of_co_applicant_age">
-            DOB
-        </label>
-        <input type="text" name="details_of_co_applicant[dob]" id="details_of_co_applicant_age" class="form-control co_applicant_dob" readonly value="{{$details_of_co_applicant['dob'] ?? ''}}">
-    </div>
-</div>
-<div class="col-md-6">
-    <div class="form-group">
         <label for="details_of_co_applicant_sex">
-            @lang('messages.sex')
+            @lang('messages.gender')
         </label>
-        <select name="details_of_co_applicant[sex]" id="details_of_co_applicant_sex" class="form-control">
+        <select name="details_of_co_applicant[gender]" id="details_of_co_applicant_sex" class="form-control">
             <option value="">@lang('messages.please_select')</option>
-            <option value="Male" @if(!empty($details_of_co_applicant['profession']) && $details_of_co_applicant['profession'] == 'Male') selected @endif>Male</option>
-            <option value="Female" @if(!empty($details_of_co_applicant['profession']) && $details_of_co_applicant['profession'] == 'Female') selected @endif>Female</option>
+            <option value="Male" @if(!empty($details_of_co_applicant['gender']) && $details_of_co_applicant['gender'] == 'Male') selected @endif>Male</option>
+            <option value="Female" @if(!empty($details_of_co_applicant['gender']) && $details_of_co_applicant['gender'] == 'Female') selected @endif>Female</option>
         </select>
     </div>
 </div>
@@ -74,6 +57,23 @@
         <label for="details_of_co_applicant_Correspondence_Address">
             Correspondence Address
         </label>
-        <textarea name="details_of_co_applicant[correspondence_address]" id="details_of_co_applicant_Correspondence_Address" class="form-control" cols="2">{!!$details_of_co_applicant['company_name'] ?? ''!!}</textarea>
+        <textarea name="details_of_co_applicant[correspondence_address]" id="details_of_co_applicant_Correspondence_Address" class="form-control" cols="2">{!!$details_of_co_applicant['correspondence_address'] ?? ''!!}</textarea>
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="form-group">
+        <label for="details_of_co_applicant_pan">
+            @lang('messages.pan')
+        </label>
+        <input type="text" name="details_of_co_applicant[pan]" id="details_of_co_applicant_pan" class="form-control"
+            value="{{$details_of_co_applicant['pan'] ?? ''}}">
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="form-group">
+        <label for="details_of_co_applicant_age">
+            DOB
+        </label>
+        <input type="text" name="details_of_co_applicant[dob]" id="details_of_co_applicant_age" class="form-control co_applicant_dob" readonly value="{{$details_of_co_applicant['dob'] ?? ''}}">
     </div>
 </div>

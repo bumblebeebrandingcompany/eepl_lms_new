@@ -64,7 +64,7 @@
             <li class="list-group-item">
                 <b>{{ trans('cruds.lead.fields.project') }}</b>
                 <a class="float-right">
-                    {{ $lead->project->name ?? '' }}
+                    {{ $project->name ?? '' }}
                 </a>
             </li>
             @php
