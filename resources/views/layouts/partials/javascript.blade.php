@@ -269,6 +269,14 @@ $(document).on('input', 'input.input_number', function(event) {
         $(this).val(digitsOnly.substring(0, 12));
     }
 })
+
+//allow only digit and comma
+$(document).on('input', 'input.digit_with_comma', function(event) {
+    const inputValue = $(this).val();
+    const secondary_phones = inputValue.replace(/[^\d,]/g, '');
+    $(this).val(secondary_phones);
+})
+
 });
 
 </script>

@@ -69,8 +69,8 @@
 <div class="col-md-6">
     <div class="form-group">
         <label for="lead_details_age">
-            DOB
+            Age
         </label>
-        <input type="text" name="lead_details[dob]" id="lead_details_age" value="@if(!empty($lead) && !empty($lead->lead_info['dob'])) {{$lead->lead_info['dob']}} @endif" class="form-control applicant_dob" readonly>
+        <input type="text" name="lead_details[age]" id="lead_details_age" value="@if(!empty($lead) && !empty($lead->lead_info['age'])) {{$lead->lead_info['age']}} @endif" class="form-control applicant_age">
     </div>
 </div>

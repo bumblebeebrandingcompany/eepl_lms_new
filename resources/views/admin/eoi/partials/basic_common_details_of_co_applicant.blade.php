@@ -72,8 +72,8 @@
 <div class="col-md-6">
     <div class="form-group">
         <label for="details_of_co_applicant_age">
-            DOB
+            Age
         </label>
-        <input type="text" name="details_of_co_applicant[dob]" id="details_of_co_applicant_age" class="form-control co_applicant_dob" readonly value="{{$details_of_co_applicant['dob'] ?? ''}}">
+        <input type="text" name="details_of_co_applicant[age]" id="details_of_co_applicant_age" class="form-control co_applicant_age"  value="{{$details_of_co_applicant['age'] ?? ''}}">
     </div>
 </div>

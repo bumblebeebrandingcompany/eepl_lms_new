@@ -19,7 +19,7 @@
         <label for="additional_email_key">
             @lang('messages.additional_email_key')
         </label>
-        <input type="email" name="additional_email" id="additional_email_key" value="@if(!empty($lead) && !empty($lead->additional_email)) {{$lead->additional_email}} @endif" class="form-control" @if(!empty($lead) && !empty($lead->additional_email)) readonly @endif>
+        <input type="text" name="additional_email" id="additional_email_key" value="@if(!empty($lead) && !empty($lead->additional_email)) {{$lead->additional_email}} @endif" class="form-control" @if(!empty($lead) && !empty($lead->additional_email)) readonly @endif>
     </div>
 </div>
 <div class="col-md-6">
@@ -35,6 +35,6 @@
         <label for="secondary_phone_key">
             @lang('messages.secondary_phone_key')
         </label>
-        <input type="text" name="secondary_phone" id="secondary_phone_key" value="@if(!empty($lead) && !empty($lead->secondary_phone)) {{$lead->secondary_phone}} @endif" class="form-control input_number" @if(!empty($lead) && !empty($lead->secondary_phone)) readonly @endif>
+        <input type="text" name="secondary_phone" id="secondary_phone_key" value="@if(!empty($lead) && !empty($lead->secondary_phone)) {{$lead->secondary_phone}} @endif" class="form-control digit_with_comma" @if(!empty($lead) && !empty($lead->secondary_phone)) readonly @endif>
     </div>
 </div>

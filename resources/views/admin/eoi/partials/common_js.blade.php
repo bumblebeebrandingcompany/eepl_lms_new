@@ -1,14 +1,3 @@
-
-$(".applicant_dob").datetimepicker({
-    ignoreReadonly: true,
-    format: 'YYYY-MM-DD'
-});
-
-$(".co_applicant_dob").datetimepicker({
-    ignoreReadonly: true,
-    format: 'YYYY-MM-DD'
-});
-
 $(".application_date").datetimepicker({
     ignoreReadonly: true,
     format: 'YYYY-MM-DD'
@@ -35,12 +24,6 @@ function getLeadDetails(text) {
         success: function(response) {
             if(response.success) {
                 $(".sell_do_and_lead_info").html(response.html);
-                setTimeout(() => {
-                    $(".applicant_dob").datetimepicker({
-                        ignoreReadonly: true,
-                        format: 'YYYY-MM-DD'
-                    });
-                }, 100);
             } else {
                 alert(response.msg);
                 if(response.redirect_url) {
