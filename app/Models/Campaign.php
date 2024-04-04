@@ -36,7 +36,10 @@ class Campaign extends Model
         'updated_at',
         'deleted_at',
     ];
-    
+    protected $casts = [
+        
+        'project_id'=>'array'
+    ];
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
@@ -72,11 +75,11 @@ class Campaign extends Model
         $this->attributes['end_date'] = $value ? Carbon::createFromFormat(config('panel.date_format'), $value)->format('Y-m-d') : null;
     }
 
-    public function project()
+   
+    public function projects()
     {
-        return $this->belongsTo(Project::class, 'project_id');
+        return $this->belongsToMany(Project::class,'project_id');
     }
-
     public function agency()
     {
         return $this->belongsTo(Agency::class, 'agency_id');

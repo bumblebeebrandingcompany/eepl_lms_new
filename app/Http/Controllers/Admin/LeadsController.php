@@ -29,15 +29,15 @@ use Exception;
 class LeadsController extends Controller
 {
     /**
-    * All Utils instance.
-    *
-    */
+     * All Utils instance.
+     *
+     */
     protected $util;
     protected $lead_view;
     /**
-    * Constructor
-    *
-    */
+     * Constructor
+     *
+     */
     public function __construct(Util $util)
     {
         $this->util = $util;
@@ -46,182 +46,24 @@ class LeadsController extends Controller
 
     public function index(Request $request)
     {
-        if(!auth()->user()->checkPermission('lead_view')){
-            abort(403, 'Unauthorized.');
+       
+        $projects = Project::all();
+      
+            return view('admin.leads.index', compact('projects'));
         }
-
-        $lead_view = empty($request->view) ? 'list' : (in_array($request->view, $this->lead_view) ? $request->view : 'list');
-        $__global_clients_filter = $this->util->getGlobalClientsFilter();
-        if(!empty($__global_clients_filter)) {
-            $project_ids = $this->util->getClientsProjects($__global_clients_filter);
-            $campaign_ids = $this->util->getClientsCampaigns($__global_clients_filter);
-        } else {
-            $project_ids = $this->util->getUserProjects(auth()->user());
-            $campaign_ids = $this->util->getCampaigns(auth()->user(), $project_ids);
-        }
-
-        if ($request->ajax()) {
-
-            $user = auth()->user();
-
-            $query = $this->util->getFIlteredLeads($request);
-            
-            $table = Datatables::of($query);
-
-            $table->addColumn('placeholder', '&nbsp;');
-            $table->addColumn('actions', '&nbsp;');
-
-            $table->editColumn('actions', function ($row) use($user) {
-                $viewGate      = $user->checkPermission('lead_view');
-                $editGate      = $user->checkPermission('lead_edit');
-                $deleteGate    = $user->checkPermission('lead_delete');
-                $crudRoutePart = 'leads';
-
-                return view('partials.datatablesActions', compact(
-                    'viewGate',
-                    'editGate',
-                    'deleteGate',
-                    'crudRoutePart',
-                    'row'
-                ));
-            });
-
-            $table->addColumn('email', function ($row) use($user) {
-                $email_cell = $row->email ? $row->email : '';
-                if(!empty($email_cell) && $user->checkPermission('number_and_email_masking')) {
-                    return maskEmail($email_cell);
-                } else {
-                    return $email_cell;
-                }
-            });
-
-            $table->addColumn('overall_status', function ($row) {
-                $overall_status = '';
-                if($row->sell_do_is_exist){
-                    $overall_status = '<b class="text-danger">Duplicate</b>';
-                } else {
-                    $overall_status = '<b class="text-success">New</b>';
-                }
-                return $overall_status;
-            });
-
-            $table->addColumn('sell_do_date', function ($row) {
-                $date = '';
-                if(!empty($row->sell_do_lead_created_at)){
-                    $date = Carbon::parse($row->sell_do_lead_created_at)->format('d/m/Y');
-                }
-                return $date;
-            });
-
-            $table->addColumn('sell_do_time', function ($row) {
-                $time = '';
-                if(!empty($row->sell_do_lead_created_at)){
-                    $time = Carbon::parse($row->sell_do_lead_created_at)->format('h:i A');
-                }
-                return $time;
-            });
-
-            $table->addColumn('sell_do_lead_id', function ($row) {
-                $sell_do_lead_id = '';
-                if(!empty($row->sell_do_lead_id)){
-                    $sell_do_lead_id = $row->sell_do_lead_id;
-                }
-                return $sell_do_lead_id; 
-            });
-
-            $table->addColumn('phone', function ($row) use($user) {
-                $phone =  $row->phone ? $row->phone : '';
-                if(!empty($phone) && $user->checkPermission('number_and_email_masking')) {
-                    return maskNumber($phone);
-                } else {
-                    return $phone;
-                }
-            });
-
-            $table->editColumn('secondary_phone', function ($row) use($user) {
-                $secondary_phone =  $row->secondary_phone ? $row->secondary_phone : '';
-                if(!empty($secondary_phone) && $user->checkPermission('number_and_email_masking')) {
-                    return maskNumber($secondary_phone);
-                } else {
-                    return $secondary_phone;
-                }
-            });
-
-            $table->addColumn('project_name', function ($row) {
-                return $row->project ? $row->project->name : '';
-            });
-
-            $table->addColumn('campaign_campaign_name', function ($row) {
-                return $row->campaign ? $row->campaign->campaign_name : '';
-            });
-
-            $table->addColumn('source_name', function ($row) {
-                return $row->source ? $row->source->name : '';
-            });
-
-            $table->addColumn('added_by', function ($row) {
-                return $row->createdBy ? $row->createdBy->name : '';
-            });
-
-            $table->addColumn('created_at', function ($row) {
-                return $row->created_at;
-            });
-
-            $table->addColumn('updated_at', function ($row) {
-                return $row->updated_at;
-            });
-
-            $table->filter(function ($query) {
-                $search = request()->get('search');
-                $search_term = $search['value'] ?? '';
-                if (request()->has('search') && !empty($search_term)) {
-                    $query->where(function($q) use($search_term) {
-                        $q->where('name', 'like', "%" . $search_term . "%")
-                            ->orWhere('ref_num', 'like', "%" . $search_term . "%")
-                            ->orWhere('sell_do_lead_id', 'like', "%" . $search_term . "%")
-                            ->orWhere('email', 'like', "%" . $search_term . "%")
-                            ->orWhere('additional_email', 'like', "%" . $search_term . "%")
-                            ->orWhere('phone', 'like', "%" . $search_term . "%")
-                            ->orWhere('secondary_phone', 'like', "%" . $search_term . "%");
-                    });
-                }
-            });
-            
-            $table->rawColumns(['actions', 'email', 'phone', 'secondary_phone', 'placeholder', 'project', 'campaign', 'created_at', 'updated_at', 'source_name', 'added_by', 'overall_status', 'sell_do_date', 'sell_do_time', 'sell_do_lead_id']);
-
-            return $table->make(true);
-        }
-
-        $projects  = Project::whereIn('id', $project_ids)
-                        ->get();
-        $campaigns = Campaign::whereIn('id', $campaign_ids)
-                        ->get();
-
-        $sources = Source::whereIn('project_id', $project_ids)
-                    ->whereIn('campaign_id', $campaign_ids)
-                    ->get();
-
-        if(in_array($lead_view, ['list'])) {
-            return view('admin.leads.index', compact('projects', 'campaigns', 'sources', 'lead_view'));
-        } else{
-            $stage_wise_leads = $this->util->getFIlteredLeads($request)->get()->groupBy('sell_do_stage');
-            $lead_stages = Lead::getStages();
-            $filters = $request->except(['view']);
-            return view('admin.leads.kanban_index', compact('projects', 'campaigns', 'sources', 'lead_view', 'stage_wise_leads', 'lead_stages', 'filters'));
-        }
-    }
+    
 
     public function create()
     {
-        if(!auth()->user()->checkPermission('lead_create')){
+        if (!auth()->user()->checkPermission('lead_create')) {
             abort(403, 'Unauthorized.');
         }
 
-        if(
-            auth()->user()->is_site_executive && 
+        if (
+            auth()->user()->is_site_executive &&
             (
-                empty(request()->get('project_id')) || 
-                empty(request()->get('phone')) || 
+                empty(request()->get('project_id')) ||
+                empty(request()->get('phone')) ||
                 (
                     empty(request()->get('action')) ||
                     (
@@ -230,18 +72,18 @@ class LeadsController extends Controller
                     )
                 )
             )
-        ){
+        ) {
             abort(403, 'Unauthorized.');
         }
-        
+
         $project_ids = $this->util->getUserProjects(auth()->user());
         $campaign_ids = $this->util->getCampaigns(auth()->user());
 
         $projects = Project::whereIn('id', $project_ids)
-                        ->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+            ->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $campaigns = Campaign::whereIn('id', $campaign_ids)
-                        ->pluck('campaign_name', 'id')->prepend(trans('global.pleaseSelect'), '');
+            ->pluck('campaign_name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $project_id = request()->get('project_id', null);
         $phone = request()->get('phone', null);
@@ -257,14 +99,14 @@ class LeadsController extends Controller
         $input['created_by'] = auth()->user()->id;
 
         /*
-        * set default source if lead
-        * added by channel partner
-        */
+         * set default source if lead
+         * added by channel partner
+         */
         $source = Source::where('is_cp_source', 1)
-                    ->where('project_id', $input['project_id'])
-                    ->first();
+            ->where('project_id', $input['project_id'])
+            ->first();
 
-        if(auth()->user()->is_channel_partner && !empty($source)) {
+        if (auth()->user()->is_channel_partner && !empty($source)) {
             $input['source_id'] = $source->id;
         }
 
@@ -273,11 +115,11 @@ class LeadsController extends Controller
         $lead->save();
 
         $this->util->storeUniqueWebhookFields($lead);
-        if(!empty($lead->project->outgoing_apis)) {
+        if (!empty($lead->project->outgoing_apis)) {
             $this->util->sendApiWebhook($lead->id);
         }
-        
-        if(!empty($request->get('redirect_to')) && $request->get('redirect_to') == 'ceoi') {
+
+        if (!empty($request->get('redirect_to')) && $request->get('redirect_to') == 'ceoi') {
             return redirect()->route('admin.eoi.create', ['phone' => $lead->phone]);
         }
 
@@ -286,7 +128,7 @@ class LeadsController extends Controller
 
     public function edit(Lead $lead)
     {
-        if(!auth()->user()->checkPermission('lead_edit')) {
+        if (!auth()->user()->checkPermission('lead_edit')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -294,14 +136,52 @@ class LeadsController extends Controller
         $campaign_ids = $this->util->getCampaigns(auth()->user(), $project_ids);
 
         $projects = Project::whereIn('id', $project_ids)
-                        ->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+            ->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $campaigns = Campaign::whereIn('id', $campaign_ids)
-                        ->pluck('campaign_name', 'id')->prepend(trans('global.pleaseSelect'), '');
+            ->pluck('campaign_name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $lead->load('project', 'campaign');
 
         return view('admin.leads.edit', compact('campaigns', 'lead', 'projects'));
+    }
+
+    public function leadIndex(Request $request,$id)
+    {
+        if (!auth()->user()->checkPermission('lead_view')) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $lead_view = empty($request->view) ? 'list' : (in_array($request->view, $this->lead_view) ? $request->view : 'list');
+        $__global_clients_filter = $this->util->getGlobalClientsFilter();
+        if (!empty($__global_clients_filter)) {
+            $project_ids = $this->util->getClientsProjects($__global_clients_filter);
+            $campaign_ids = $this->util->getClientsCampaigns($__global_clients_filter);
+        } else {
+            $project_ids = $this->util->getUserProjects(auth()->user());
+            $campaign_ids = $this->util->getCampaigns(auth()->user(), $project_ids);
+        }
+
+       
+$project=Project::findOrFail($id);
+        $projects = Project::whereIn('id', $project_ids)
+            ->get();
+            $project = Project::findOrFail($id);
+        $campaigns = Campaign::whereIn('id', $campaign_ids)
+            ->get();
+
+        $sources = Source::whereIn('project_id', $project_ids)
+            ->whereIn('campaign_id', $campaign_ids)
+            ->get();
+        $leads = Lead::where('project_id',$project->id)->get();
+        if (in_array($lead_view, ['list'])) {
+            return view('admin.leads.leads', compact('projects', 'campaigns', 'sources', 'lead_view', 'leads','project'));
+        } else {
+            $stage_wise_leads = $this->util->getFIlteredLeads($request)->get()->groupBy('sell_do_stage');
+            $lead_stages = Lead::getStages();
+            $filters = $request->except(['view']);
+            return view('admin.leads.kanban_index', compact('projects', 'campaigns', 'sources', 'lead_view', 'stage_wise_leads', 'lead_stages', 'filters'));
+        }
     }
 
     public function update(UpdateLeadRequest $request, Lead $lead)
@@ -311,17 +191,17 @@ class LeadsController extends Controller
 
         $lead->update($input);
         $this->util->storeUniqueWebhookFields($lead);
-        
+
         return redirect()->route('admin.leads.index');
     }
 
     public function show(Lead $lead)
     {
-        if(
-            !auth()->user()->checkPermission('lead_view') || 
+        if (
+            !auth()->user()->checkPermission('lead_view') ||
             (
                 in_array(auth()->user()->user_type, ['lead_view_own_only', 'CRMHead']) &&
-                auth()->user()->checkPermission('lead_view_own_only') && 
+                auth()->user()->checkPermission('lead_view_own_only') &&
                 ($lead->created_by != auth()->user()->id)
             )
         ) {
@@ -331,20 +211,20 @@ class LeadsController extends Controller
         $lead->load('project', 'campaign', 'source', 'createdBy');
 
         $lead_events = LeadEvents::where('lead_id', $lead->id)
-                        ->select('event_type', 'webhook_data', 'created_at as added_at', 'source')
-                        ->orderBy('added_at', 'desc')
-                        ->get();
-        
+            ->select('event_type', 'webhook_data', 'created_at as added_at', 'source')
+            ->orderBy('added_at', 'desc')
+            ->get();
+
         $project_ids = $this->util->getUserProjects(auth()->user());
         $projects_list = Project::whereIn('id', $project_ids)->pluck('name', 'id')
-                            ->toArray();
+            ->toArray();
 
         return view('admin.leads.show', compact('lead', 'lead_events', 'projects_list'));
     }
 
     public function destroy(Lead $lead)
     {
-        if(!auth()->user()->checkPermission('lead_delete')) {
+        if (!auth()->user()->checkPermission('lead_delete')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -355,7 +235,7 @@ class LeadsController extends Controller
 
     public function massDestroy(MassDestroyLeadRequest $request)
     {
-        if(!auth()->user()->checkPermission('lead_delete')) {
+        if (!auth()->user()->checkPermission('lead_delete')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -370,9 +250,9 @@ class LeadsController extends Controller
 
     public function getLeadDetailHtml(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $index = $request->get('index') + 1;
-            if(empty($request->get('project_id'))) {
+            if (empty($request->get('project_id'))) {
                 return view('admin.leads.partials.lead_detail')
                     ->with(compact('index'));
             } else {
@@ -386,10 +266,10 @@ class LeadsController extends Controller
 
     public function getLeadDetailsKeyValuePair($lead_details_arr)
     {
-        if(!empty($lead_details_arr)) {
+        if (!empty($lead_details_arr)) {
             $lead_details = [];
             foreach ($lead_details_arr as $lead_detail) {
-                if(isset($lead_detail['key']) && !empty($lead_detail['key'])) {
+                if (isset($lead_detail['key']) && !empty($lead_detail['key'])) {
                     $lead_details[$lead_detail['key']] = $lead_detail['value'] ?? '';
                 }
             }
@@ -400,22 +280,22 @@ class LeadsController extends Controller
 
     public function getLeadDetailsRows(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
 
             $lead_details = [];
             $project_id = $request->input('project_id');
             $lead_id = $request->input('lead_id');
             $project = Project::findOrFail($project_id);
             $webhook_fields = $project->webhook_fields ?? [];
-            
-            if(!empty($lead_id)) {
+
+            if (!empty($lead_id)) {
                 $lead = Lead::findOrFail($lead_id);
                 $lead_details = $lead->lead_info;
             }
 
             $html = View::make('admin.leads.partials.lead_details_rows')
-                        ->with(compact('webhook_fields', 'lead_details'))
-                        ->render();
+                ->with(compact('webhook_fields', 'lead_details'))
+                ->render();
 
             return [
                 'html' => $html,
@@ -426,9 +306,9 @@ class LeadsController extends Controller
 
     public function sendMassWebhook(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $lead_ids = $request->input('lead_ids');
-            if(!empty($lead_ids)) {
+            if (!empty($lead_ids)) {
                 $response = [];
                 foreach ($lead_ids as $id) {
                     $response = $this->util->sendApiWebhook($id);
@@ -438,12 +318,12 @@ class LeadsController extends Controller
         }
     }
 
-    public function export(Request $request) 
+    public function export(Request $request)
     {
-        if(!auth()->user()->is_superadmin) {
+        if (!auth()->user()->is_superadmin) {
             abort(403, 'Unauthorized.');
         }
-        
+
         return Excel::download(new LeadsExport($request), 'leads.xlsx');
     }
 
@@ -454,15 +334,15 @@ class LeadsController extends Controller
         $note = $request->input('note');
         try {
             $mails = [];
-            if(!empty($lead->email)) {
+            if (!empty($lead->email)) {
                 $mails[$lead->email] = $lead->name ?? $lead->ref_num;
             }
 
-            if(!empty($lead->additional_email)) {
+            if (!empty($lead->additional_email)) {
                 $mails[$lead->additional_email] = $lead->name ?? $lead->ref_num;
             }
 
-            if(!empty($mails)) {
+            if (!empty($mails)) {
                 Notification::route('mail', $mails)->notify(new LeadDocumentShare($lead, $document, auth()->user(), $note));
                 $this->util->logActivity($lead, 'document_sent', ['sent_by' => auth()->user()->id, 'document_id' => $doc_id, 'status' => 'sent', 'datetime' => Carbon::now()->toDateTimeString(), 'note' => $note]);
             }

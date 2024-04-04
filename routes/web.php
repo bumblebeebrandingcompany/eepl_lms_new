@@ -14,7 +14,7 @@ Auth::routes(['register' => false]);
 //webhook receiver
 Route::any('webhook/new-lead', 'Admin\WebhookReceiverController@storeNewLead')
     ->name('webhook.store.new.lead');
-Route::any('webhook/lead-activity', 'Admin\WebhookReceiverController@storeLeadActivity')
+Route::any('/webhook/lead-activity', 'Admin\WebhookReceiverController@storeLeadActivity')
     ->name('webhook.store.lead.activity');
 Route::any('webhook/{secret}', 'Admin\WebhookReceiverController@processor')->name('webhook.processor');
 
@@ -24,13 +24,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     Route::post('store-global-client-filters', 'HomeController@storeGlobalClientFilters')
         ->name('store.global.client.filter');
-        
+
     Route::get('/', 'HomeController@index')->name('home');
 
     //webhook receiver
     Route::get('webhook/new-lead', 'WebhookReceiverController@getNewLeadWebhookLog')
         ->name('webhook.new.lead.log');
-        
+
     Route::get('webhook/lead-activities', 'WebhookReceiverController@getLeadActivitiesWebhookLog')
         ->name('webhook.lead.activities.log');
 
@@ -72,11 +72,22 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::post('projects/parse-csv-import', 'ProjectController@parseCsvImport')->name('projects.parseCsvImport');
     Route::post('projects/process-csv-import', 'ProjectController@processCsvImport')->name('projects.processCsvImport');
     Route::resource('projects', 'ProjectController');
+    Route::get('projects/{id}/source', 'ProjectController@source')->name('projects.source');
+    Route::get('projects/{id}/campaign', 'ProjectController@campaign')->name('projects.campaign');
 
     // Campaign
     Route::get('get-campaigns', 'CampaignController@getCampaigns')->name('get.campaigns');
     Route::delete('campaigns/destroy', 'CampaignController@massDestroy')->name('campaigns.massDestroy');
     Route::resource('campaigns', 'CampaignController');
+    Route::resource('plcs', 'PlcController');
+    Route::resource('price', 'PriceController');
+    Route::resource('plotdetails', 'PlotDetailController');
+    Route::post('plotdetails/parse-csv-import', 'PlotDetailController@parseCsvImport')->name('plotdetails.parseCsvImport');
+    Route::post('plotdetails/process-csv-import', 'PlotDetailController@processCsvImport')->name('plot-details.processCsvImport');
+
+
+
+
 
     // Leads
     Route::get('share-lead/{lead_id}/doc/{doc_id}', 'LeadsController@shareDocument')->name('share.lead.doc');
@@ -86,6 +97,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('lead-detail-html', 'LeadsController@getLeadDetailHtml')->name('lead.detail.html');
     Route::delete('leads/destroy', 'LeadsController@massDestroy')->name('leads.massDestroy');
     Route::resource('leads', 'LeadsController');
+    Route::get('leads/{id}/leads', 'LeadsController@leadIndex')->name('leads.lead');
+
 
     // Audit Logs
     Route::resource('audit-logs', 'AuditLogsController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);
@@ -107,7 +120,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('get-sources', 'SourceController@getSource')->name('get.sources');
     Route::delete('sources/destroy', 'SourceController@massDestroy')->name('sources.massDestroy');
     Route::resource('sources', 'SourceController');
-    
+    Route::resource('selldo', 'SellDoController');
+
+
     Route::get('system-calendar', 'SystemCalendarController@index')->name('systemCalendar');
     Route::get('global-search', 'GlobalSearchController@search')->name('globalSearch');
 
@@ -122,7 +137,29 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Expression Of Interest
     Route::get('eoi-lead-detail', 'ExpressionOfInterestController@getLeadDetails')->name('eoi.lead.detail');
     Route::delete('eoi/destroy', 'ExpressionOfInterestController@massDestroy')->name('eoi.massDestroy');
+
+
     Route::resource('eoi', 'ExpressionOfInterestController');
+
+    Route::get('bookings-lead-detail', 'BookingFormController@getLeadDetails')->name('bookings.lead.detail');
+    Route::delete('bookings/destroy', 'BookingFormController@massDestroy')->name('bookings.massDestroy');
+    Route::get('/booking/book', 'BookingController@book')->name('booking.book');
+    Route::get('/booking/{booking}/booked', 'BookingController@booked')->name('booking.booked');    
+
+    Route::resource('bookings', 'BookingFormController');
+    Route::resource('merlom-leads', 'MerlomLeadController');
+    Route::resource('booking', 'BookingController');
+    Route::get('/booking/{plotdetails}/plots', 'BookingController@booking')->name('booking.plots');
+    Route::get('/booking/{plotdetails}/plots/store', 'BookingController@bookingstore')->name('booking.plots.store');
+
+
+    Route::get('/enquiry-form', 'EnquiryController@index')->name('aztec.index');
+    Route::get('/aztec', 'EnquiryController@create')->name('aztec.create');
+    Route::post('/aztec/store', 'EnquiryController@store')->name('aztec.store');
+    Route::get('/aztec/{enquiry}/edit', 'EnquiryController@edit')->name('aztec.edit');
+    Route::put('/aztec/{enquiry}/update', 'EnquiryController@update')->name('aztec.update');
+    Route::get('/aztec/{enquiry}/show', 'EnquiryController@show')->name('aztec.show');
+    Route::delete('/aztec/{enquiry}/destroy', 'EnquiryController@destroy')->name('aztec.destroy');
 });
 Route::group(['prefix' => 'profile', 'as' => 'profile.', 'namespace' => 'Auth', 'middleware' => ['auth']], function () {
     // Change password

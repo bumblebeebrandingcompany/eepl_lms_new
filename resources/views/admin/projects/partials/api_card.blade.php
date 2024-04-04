@@ -128,7 +128,7 @@
                             @includeIf('admin.projects.partials.request_body_input', [
                                 'webhook_key' => $key,
                                 'rb_key' => $rb_key,
-                                'tags' => $tags,
+                             
                                 'rb' => $value
                             ])
                         @endforeach
@@ -136,7 +136,7 @@
                         @includeIf('admin.projects.partials.request_body_input', [
                             'webhook_key' => $key,
                             'rb_key' => $rb_key,
-                            'tags' => $tags,
+                         
                             'rb' => []
                         ])
                     @endif

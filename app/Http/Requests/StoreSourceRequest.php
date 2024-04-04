@@ -17,10 +17,10 @@ class StoreSourceRequest extends FormRequest
     public function rules()
     {
         return [
-            'project_id' => [
-                'required',
-                'integer',
-            ],
+            // 'project_id' => [
+            //     'required',
+            //     'integer',
+            // ],
             'campaign_id' => [
                 'required',
                 'integer',

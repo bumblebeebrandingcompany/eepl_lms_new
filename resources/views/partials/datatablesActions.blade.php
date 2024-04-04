@@ -25,6 +25,21 @@
         {{ trans('messages.outgoing_webhook') }}
     </a>
 @endif
+@if(isset($outgoingAutomationWebhookGate) && $outgoingAutomationWebhookGate)
+    <a class="btn btn-xs btn-dark" href="{{ route('admin.' . $crudRoutePart . '.webhook', $row->id) }}">
+        OutgoingAutomation
+    </a>
+@endif
+{{-- @if(isset($sourceGate) && $sourceGate)
+    <a class="btn btn-xs btn-info" href="{{ route('admin.' . $crudRoutePart . '.source', $row->id) }}">
+source
+    </a>
+@endif
+@if(isset($campaignGate) && $campaignGate)
+    <a class="btn btn-xs btn-info" href="{{ route('admin.' . $crudRoutePart . '.campaign', $row->id) }}">
+Campaign
+    </a>
+@endif --}}
 @if(isset($passwordEditGate) && $passwordEditGate)
     <button class="btn btn-xs btn-dark edit_password" data-href="{{ route('admin.' . $crudRoutePart . '.edit.password', $row->id) }}">
         {{ trans('messages.edit_password') }}

@@ -29,10 +29,10 @@ class StoreCampaignRequest extends FormRequest
                 'date_format:' . config('panel.date_format'),
                 'nullable',
             ],
-            'project_id' => [
-                'required',
-                'integer',
-            ],
+            // 'project_id' => [
+            //     'required',
+            //     'integer',
+            // ],
         ];
     }
 }

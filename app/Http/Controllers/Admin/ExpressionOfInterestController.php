@@ -16,18 +16,19 @@ use App\Http\Requests\MassDestroyFOIRequest;
 use View;
 use App\Models\Campaign;
 use App\Models\Source;
+
 class ExpressionOfInterestController extends Controller
 {
     /**
-    * All Utils instance.
-    *
-    */
+     * All Utils instance.
+     *
+     */
     protected $util;
 
     /**
-    * Constructor
-    *
-    */
+     * Constructor
+     *
+     */
     public function __construct(Util $util)
     {
         $this->util = $util;
@@ -38,18 +39,24 @@ class ExpressionOfInterestController extends Controller
      */
     public function index(Request $request)
     {
-        if(!auth()->user()->checkPermission('eoi_view')){
+        if (!auth()->user()->checkPermission('eoi_view')) {
             abort(403, 'Unauthorized.');
         }
 
         if ($request->ajax()) {
             $query = LeadEvents::where('event_type', 'expression_of_interest')
-                        ->join('leads', 'lead_events.lead_id', '=', 'leads.id')
-                        ->leftJoin('projects', 'lead_events.project_id', '=', 'projects.id')
-                        ->select(['lead_events.id', 'lead_events.lead_id', 'lead_events.created_at',
-                        'leads.ref_num', 'leads.name as lead_name', 'projects.name as project_name']);
+                ->join('leads', 'lead_events.lead_id', '=', 'leads.id')
+                ->leftJoin('projects', 'lead_events.project_id', '=', 'projects.id')
+                ->select([
+                    'lead_events.id',
+                    'lead_events.lead_id',
+                    'lead_events.created_at',
+                    'leads.ref_num',
+                    'leads.name as lead_name',
+                    'projects.name as project_name'
+                ]);
 
-            if(!auth()->user()->is_superadmin) {
+            if (!auth()->user()->is_superadmin) {
                 $query->where('lead_events.created_by', auth()->user()->id);
             }
 
@@ -59,9 +66,9 @@ class ExpressionOfInterestController extends Controller
             $table->addColumn('actions', '&nbsp;');
 
             $table->editColumn('actions', function ($row) {
-                $viewGate      = auth()->user()->checkPermission('eoi_view');
-                $editGate      = auth()->user()->checkPermission('eoi_edit');
-                $deleteGate    = auth()->user()->checkPermission('eoi_delete');
+                $viewGate = auth()->user()->checkPermission('eoi_view');
+                $editGate = auth()->user()->checkPermission('eoi_edit');
+                $deleteGate = auth()->user()->checkPermission('eoi_delete');
                 $crudRoutePart = 'eoi';
 
                 return view('partials.datatablesActions', compact(
@@ -70,17 +77,18 @@ class ExpressionOfInterestController extends Controller
                     'deleteGate',
                     'crudRoutePart',
                     'row'
-                ));
+                )
+                );
             });
-            
+
             $table->addColumn('project_name', function ($row) {
                 return $row->project_name ? $row->project_name : '';
             });
 
             $table->editColumn('lead_name', function ($row) {
                 $lead = $row->lead_name ? $row->lead_name : '';
-                if(!empty($row->ref_num)) {
-                    $lead .= '<small>(<code>'.$row->ref_num.'</code>)</small>';
+                if (!empty($row->ref_num)) {
+                    $lead .= '<small>(<code>' . $row->ref_num . '</code>)</small>';
                 }
                 return $lead;
             });
@@ -89,10 +97,10 @@ class ExpressionOfInterestController extends Controller
 
             $table->rawColumns(['actions', 'placeholder', 'project_name', 'lead_name', 'created_at']);
 
-            $table->filter(function($query) {
-                if(request()->has('search') && !empty(request('search.value'))) {
+            $table->filter(function ($query) {
+                if (request()->has('search') && !empty(request('search.value'))) {
                     $search_term = request('search.value');
-                    $query->where(function($q) use($search_term) {
+                    $query->where(function ($q) use ($search_term) {
                         $q->where('lead_events.webhook_data', 'like', "%" . $search_term . "%")
                             ->orWhere('lead_events.sell_do_lead_id', 'like', "%" . $search_term . "%")
                             ->orWhere('leads.ref_num', 'like', "%" . $search_term . "%")
@@ -113,14 +121,14 @@ class ExpressionOfInterestController extends Controller
      */
     public function create()
     {
-        if(!auth()->user()->checkPermission('eoi_create')){
+        if (!auth()->user()->checkPermission('eoi_create')) {
             abort(403, 'Unauthorized.');
         }
 
         $project_ids = $this->util->getUserProjects(auth()->user());
         $projects = Project::whereIn('id', $project_ids)
-                    ->pluck('name', 'id')
-                    ->toArray();
+            ->pluck('name', 'id')
+            ->toArray();
 
         $phone = request()->get('phone', null);
 
@@ -133,7 +141,7 @@ class ExpressionOfInterestController extends Controller
      */
     public function store(Request $request)
     {
-        if(!auth()->user()->checkPermission('eoi_create')){
+        if (!auth()->user()->checkPermission('eoi_create')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -143,7 +151,7 @@ class ExpressionOfInterestController extends Controller
             $lead_id = $request->input('lead_id');
             $input = $request->only(['additional_email', 'secondary_phone']);
             $lead_details = $request->input('lead_details');
-            
+
             // update lead details
             $lead = Lead::findOrFail($lead_id);
             $input['lead_details'] = !empty($lead->lead_info) ? array_merge($lead->lead_info, $lead_details) : $lead_details;
@@ -176,8 +184,8 @@ class ExpressionOfInterestController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            $msg = 'File:'.$e->getFile().' | Line:'.$e->getLine().' | Message:'.$e->getMessage();
-            \Log::info('eoi store:- '.$msg);
+            $msg = 'File:' . $e->getFile() . ' | Line:' . $e->getLine() . ' | Message:' . $e->getMessage();
+            \Log::info('eoi store:- ' . $msg);
         }
         return redirect()->route('admin.eoi.index');
     }
@@ -187,13 +195,13 @@ class ExpressionOfInterestController extends Controller
      */
     public function show(string $id)
     {
-        if(!auth()->user()->checkPermission('eoi_view')){
+        if (!auth()->user()->checkPermission('eoi_view')) {
             abort(403, 'Unauthorized.');
         }
 
         $query = LeadEvents::with('lead', 'project');
-        
-        if(!auth()->user()->is_superadmin) {
+
+        if (!auth()->user()->is_superadmin) {
             $query->where('lead_events.created_by', auth()->user()->id);
         }
 
@@ -208,7 +216,7 @@ class ExpressionOfInterestController extends Controller
      */
     public function edit(string $id)
     {
-        if(!auth()->user()->checkPermission('eoi_edit')){
+        if (!auth()->user()->checkPermission('eoi_edit')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -216,16 +224,16 @@ class ExpressionOfInterestController extends Controller
 
         $project_ids = $this->util->getUserProjects(auth()->user());
         $projects = Project::whereIn('id', $project_ids)
-                    ->pluck('name', 'id')
-                    ->toArray();
+            ->pluck('name', 'id')
+            ->toArray();
 
         $campaigns = Campaign::where('project_id', 9)
-                    ->pluck('campaign_name', 'id')
-                    ->prepend(trans('global.pleaseSelect'), '');
+            ->pluck('campaign_name', 'id')
+            ->prepend(trans('global.pleaseSelect'), '');
 
         $sources = Source::where('project_id', 9)
-                    ->pluck('name', 'id')
-                    ->prepend(trans('global.pleaseSelect'), '');
+            ->pluck('name', 'id')
+            ->prepend(trans('global.pleaseSelect'), '');
 
         return view('admin.eoi.edit')
             ->with(compact('lead_event', 'projects', 'campaigns', 'sources'));
@@ -236,7 +244,7 @@ class ExpressionOfInterestController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if(!auth()->user()->checkPermission('eoi_edit')){
+        if (!auth()->user()->checkPermission('eoi_edit')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -274,8 +282,8 @@ class ExpressionOfInterestController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            $msg = 'File:'.$e->getFile().' | Line:'.$e->getLine().' | Message:'.$e->getMessage();
-            \Log::info('eoi edit:- '.$msg);
+            $msg = 'File:' . $e->getFile() . ' | Line:' . $e->getLine() . ' | Message:' . $e->getMessage();
+            \Log::info('eoi edit:- ' . $msg);
         }
         return redirect()->route('admin.eoi.index');
     }
@@ -285,7 +293,7 @@ class ExpressionOfInterestController extends Controller
      */
     public function destroy(string $id)
     {
-        if(!auth()->user()->checkPermission('eoi_delete')){
+        if (!auth()->user()->checkPermission('eoi_delete')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -298,7 +306,7 @@ class ExpressionOfInterestController extends Controller
 
     public function massDestroy(MassDestroyFOIRequest $request)
     {
-        if(!auth()->user()->checkPermission('eoi_delete')){
+        if (!auth()->user()->checkPermission('eoi_delete')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -313,41 +321,63 @@ class ExpressionOfInterestController extends Controller
 
     public function getLeadDetails(Request $request)
     {
-        if($request->ajax()) {
-            $search_term = $request->input('search_term');
-            $lead = Lead::where(function ($query) use($search_term) {
-                        $query->where('phone', 'like', '%'.$search_term.'%')
-                            ->orWhere('secondary_phone', 'like', '%'.$search_term.'%');
-                    })
-                    ->first();
-            
-            if(empty($lead)) {
+        if ($request->ajax()) {
+            $searchTerm = $request->input('search_term');
+            $projectId = $request->input('project_id'); // Add this line to get project_id
+
+            $leadsQuery = Lead::where(function ($query) use ($searchTerm) {
+                $query->where('phone', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('secondary_phone', 'like', '%' . $searchTerm . '%');
+            });
+
+            if ($projectId != 'all') {
+                // Filter by project_id if not 'all'
+                $leadsQuery->where('project_id', $projectId);
+            }
+
+            $lead = $leadsQuery->first();
+            if ($projectId == 1) {
+                $msg = " Lead is not found with this number. Please create a new enquiry";
+                $redirectUrl = route('admin.aztec.create', ['project_id' => $projectId, 'phone' => $searchTerm, 'action' => 'ceoi']);
+            } else {
+                $msg = " Lead is not found with this number. Please create a new lead";
+
+                $redirectUrl = route('admin.leads.create', ['project_id' => $projectId, 'phone' => $searchTerm, 'action' => 'default_action']);
+            }
+            if (empty($lead)) {
                 return [
-                    'msg' => 'Lead is not found with this number. Please create a new lead.',
+                    'msg' => $msg,
                     'success' => false,
-                    'redirect_url' => route('admin.leads.create', ['project_id' => 9, 'phone' => $search_term, 'action' => 'ceoi'])
+                    'redirect_url' => $redirectUrl
                 ];
             }
 
-            $project_ids = $this->util->getUserProjects(auth()->user());
-            $projects = Project::whereIn('id', $project_ids)
-                        ->pluck('name', 'id')
-                        ->toArray();
 
-            $campaigns = Campaign::where('project_id', 9)
-                            ->pluck('campaign_name', 'id')
-                            ->prepend(trans('global.pleaseSelect'), '');
+            $projectIds = $this->util->getUserProjects(auth()->user());
+            $projects = Project::whereIn('id', $projectIds)
+                ->pluck('name', 'id')
+                ->toArray();
 
-            $sources = Source::where('project_id', 9)
-                            ->pluck('name', 'id')
-                            ->prepend(trans('global.pleaseSelect'), '');
+            $campaigns = Campaign::where('project_id', $projectId)
+                ->pluck('campaign_name', 'id')
+                ->prepend(trans('global.pleaseSelect'), '');
 
-            $html = View::make('admin.eoi.partials.sell_do_and_lead_info', ['lead' => $lead, 'projects' => $projects, 'campaigns' => $campaigns, 'sources' => $sources])
-                    ->render();
+            $sources = Source::where('project_id', $projectId)
+                ->pluck('name', 'id')
+                ->prepend(trans('global.pleaseSelect'), '');
+
+            $html = View::make('admin.eoi.partials.sell_do_and_lead_info', [
+                'lead' => $lead,
+                'projects' => $projects,
+                'campaigns' => $campaigns,
+                'sources' => $sources
+            ])->render();
+
             return [
                 'html' => $html,
                 'success' => true
             ];
         }
     }
+
 }

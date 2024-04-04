@@ -17,12 +17,30 @@ class Source extends Model
         'name',
     ];
 
+    
+    protected $fillable = [
+        'custom_fields',
+        'essential_fields',
+        'sales_fields',
+        'system_fields',
+        'project_id',
+        'campaign_id',
+        'webhook_secret',
+        'is_cp_source',
+        'name'
+    ];
     protected $dates = [
         'created_at',
         'updated_at',
         'deleted_at',
     ];
-    
+    protected $casts = [
+        'custom_fields' => 'array',
+        'essential_fields'=>'array',
+        'sales_fields'  => 'array',
+        'system_fields' => 'array',
+        'project_id'=>'array'
+    ];
     /**
      * The attributes that aren't mass assignable.
      *

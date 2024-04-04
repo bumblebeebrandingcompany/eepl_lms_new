@@ -13,20 +13,21 @@ $(".adv_amount_date").datetimepicker({
     format: 'YYYY-MM-DD'
 });
 
-function getLeadDetails(text) {
+function getLeadDetails(text, projectId) {
     $.ajax({
-        method:"GET",
-        url: "{{route('admin.eoi.lead.detail')}}",
+        method: "GET",
+        url: "{{ route('admin.eoi.lead.detail') }}",
         data: {
-            search_term: text
+            search_term: text,
+            project_id: projectId  // Add project_id to the request data
         },
         dataType: "json",
-        success: function(response) {
-            if(response.success) {
+        success: function (response) {
+            if (response.success) {
                 $(".sell_do_and_lead_info").html(response.html);
             } else {
                 alert(response.msg);
-                if(response.redirect_url) {
+                if (response.redirect_url) {
                     setTimeout(() => {
                         window.location.replace(response.redirect_url);
                     }, 100);
@@ -37,13 +38,15 @@ function getLeadDetails(text) {
     });
 }
 
+
 $(document).on('click', ".search_lead", function() {
     let text = $("#search_phone").val();
+    let projectId = $("#project_id").val();
     if(text.length < 10) {
         alert('Enter 10 digit valid number');
         return;
     }
-    getLeadDetails(text);
+    getLeadDetails(text,projectId);
 });
 
 function togglePlanHomeConstructionDiv() {

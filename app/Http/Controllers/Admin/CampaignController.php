@@ -160,15 +160,11 @@ class CampaignController extends Controller
         return view('admin.campaigns.show', compact('campaign'));
     }
 
-    public function destroy(Campaign $campaign)
+    public function destroy($id)
     {
-        if(!auth()->user()->checkPermission('campaign_delete')){
-            abort(403, 'Unauthorized.');
-        }
-
-        $campaign->delete();
-
-        return back();
+        $source = Campaign::findOrFail($id);
+        $source->delete();
+        return redirect()->back()->with('success', 'campaign deleted successfully');
     }
 
     public function massDestroy(MassDestroyCampaignRequest $request)

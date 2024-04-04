@@ -93,6 +93,7 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.user.fields.contact_number_1_helper') }}</span>
             </div>
+          
             <div class="form-group">
                 <label for="contact_number_2">{{ trans('cruds.user.fields.contact_number_2') }}</label>
                 <input class="form-control {{ $errors->has('contact_number_2') ? 'is-invalid' : '' }}" type="text" name="contact_number_2" id="contact_number_2" value="{{ old('contact_number_2', '') }}">
@@ -100,6 +101,13 @@
                     <span class="text-danger">{{ $errors->first('contact_number_2') }}</span>
                 @endif
                 <span class="help-block">{{ trans('cruds.user.fields.contact_number_2_helper') }}</span>
+            </div>
+            <div class="form-group">
+                <label for="sell_do_user_id">Sell Do User Id</label>
+                <input class="form-control {{ $errors->has('sell_do_user_id') ? 'is-invalid' : '' }}" type="text" name="sell_do_user_id" id="sell_do_user_id" value="{{ old('sell_do_user_id', '') }}">
+                @if($errors->has('sell_do_user_id'))
+                    <span class="text-danger">{{ $errors->first('sell_do_user_id') }}</span>
+                @endif
             </div>
             <div class="form-group">
                 <label for="website">{{ trans('cruds.user.fields.website') }}</label>

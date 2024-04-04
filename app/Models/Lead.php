@@ -24,9 +24,9 @@ class Lead extends Model
         'updated_at',
         'deleted_at',
     ];
-    
+
     public const DEFAULT_WEBHOOK_FIELDS = [
-        'name', 'email', 
+        'name', 'email',
         'phone', 'predefined_comments',
         'predefined_cp_comments', 'predefined_created_by',
         'predefined_created_at', 'predefined_source_name',
@@ -36,7 +36,7 @@ class Lead extends Model
         'predefined_source_field3','predefined_source_field4',
         'predefined_lead_ref_no'
     ];
-    
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -54,7 +54,7 @@ class Lead extends Model
         'webhook_response' => 'array',
         'lead_event_webhook_response' => 'array',
     ];
-    
+
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
@@ -63,6 +63,10 @@ class Lead extends Model
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id');
+    }
+    public function promo()
+    {
+        return $this->belongsTo(Promo::class, 'promo_id');
     }
 
     public function createdBy()
@@ -84,7 +88,7 @@ class Lead extends Model
     {
         return $this->hasMany(LeadEvents::class, 'lead_id');
     }
-    
+
     public function flattenData($datas)
     {
         $singleDimArr = [];
@@ -106,7 +110,7 @@ class Lead extends Model
         $lead_details = $this->lead_details;
 
         if (empty($lead_details)) return $lead_info;
-        
+
         foreach ($lead_details as $key => $lead_detail) {
             if (!empty($lead_detail) && !is_array($lead_detail)) $lead_info[$key] = $lead_detail;
             if (!empty($lead_detail) && is_array($lead_detail)) {

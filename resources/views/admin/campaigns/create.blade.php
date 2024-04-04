@@ -35,7 +35,7 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.campaign.fields.end_date_helper') }}</span>
             </div>
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label class="required" for="project_id">{{ trans('cruds.campaign.fields.project') }}</label>
                 <select class="form-control select2 {{ $errors->has('project') ? 'is-invalid' : '' }}" name="project_id" id="project_id" required>
                     @foreach($projects as $id => $entry)
@@ -46,7 +46,7 @@
                     <span class="text-danger">{{ $errors->first('project') }}</span>
                 @endif
                 <span class="help-block">{{ trans('cruds.campaign.fields.project_helper') }}</span>
-            </div>
+            </div> --}}
             <div class="form-group">
                 <label for="agency_id">{{ trans('cruds.campaign.fields.agency') }}</label>
                 <select class="form-control select2 {{ $errors->has('agency') ? 'is-invalid' : '' }}" name="agency_id" id="agency_id">

@@ -8,32 +8,38 @@ use App\Http\Controllers\Traits\MediaUploadingTrait;
 use App\Http\Requests\MassDestroyProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Models\Agency;
 use App\Models\Client;
+use App\Models\Plc;
 use App\Models\Project;
+use App\Models\SellDo;
 use App\Models\User;
 use App\Models\Source;
 use App\Models\Campaign;
 use Gate;
+use App\Models\ProjectCampaign;
+use App\Models\ProjectSource;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 use App\Utils\Util;
 use GuzzleHttp\Exception\RequestException;
+
 class ProjectController extends Controller
 {
     use MediaUploadingTrait, CsvImportTrait;
 
     /**
-    * All Utils instance.
-    *
-    */
+     * All Utils instance.
+     *
+     */
     protected $util;
 
     /**
-    * Constructor
-    *
-    */
+     * Constructor
+     *
+     */
     public function __construct(Util $util)
     {
         $this->util = $util;
@@ -42,7 +48,7 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        if(!$user->checkPermission('project_view')){
+        if (!$user->checkPermission('project_view')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -54,37 +60,45 @@ class ProjectController extends Controller
 
             if ($user->is_channel_partner || $user->is_client || $user->is_agency) {
                 $project_ids = $this->util->getUserProjects(auth()->user());
-                $query = $query->where(function ($q) use($user, $project_ids) {
+                $query = $query->where(function ($q) use ($user, $project_ids) {
                     $q->whereIn('projects.id', $project_ids)
                         ->orWhere('projects.created_by_id', $user->id)
                         ->orWhere('projects.client_id', $user->client_id);
                 });
             }
 
-            if(!empty($__global_clients_filter)) {
+            if (!empty($__global_clients_filter)) {
                 $query->whereIn('projects.client_id', $__global_clients_filter);
             }
 
             $table = Datatables::of($query);
-
             $table->addColumn('placeholder', '&nbsp;');
-            $table->addColumn('actions', '&nbsp;');
 
-            $table->editColumn('actions', function ($row) use($user) {
-                $viewGate      = $user->checkPermission('project_view');
-                $editGate      = $user->checkPermission('project_edit');
-                $deleteGate    = $user->checkPermission('project_delete');
+
+            $table->editColumn('actions', function ($row) use ($user) {
+                $viewGate = $user->checkPermission('project_show');
+                $editGate = $user->checkPermission('project_edit');
+                $deleteGate = $user->checkPermission('project_delete');
+                $sourceGate = $user->checkPermission('project_source');
+
                 $outgoingWebhookGate = $user->is_superadmin;
+                $outgoingAutomationWebhookGate = $user->is_superadmin;
+                $sourceGate = $user->is_superadmin;
                 $crudRoutePart = 'projects';
 
-                return view('partials.datatablesActions', compact(
-                    'viewGate',
-                    'editGate',
-                    'deleteGate',
-                    'outgoingWebhookGate',
-                    'crudRoutePart',
-                    'row'
-                ));
+                return view(
+                    'partials.datatablesActions',
+                    compact(
+                        'viewGate',
+                        'editGate',
+                        'deleteGate',
+                        'outgoingWebhookGate',
+                        'outgoingAutomationWebhookGate',
+                        'crudRoutePart',
+                        'row',
+                        'sourceGate'
+                    )
+                );
             });
             $table->editColumn('name', function ($row) {
                 return $row->name ? $row->name : '';
@@ -104,13 +118,16 @@ class ProjectController extends Controller
             $table->editColumn('location', function ($row) {
                 return $row->location ? $row->location : '';
             });
+            $table->editColumn('overall_sqfts', function ($row) {
+                return $row->overall_sqfts ? $row->overall_sqfts : '';
+            });
 
             $table->rawColumns(['actions', 'placeholder', 'created_by', 'client']);
 
             return $table->make(true);
         }
 
-        $users   = User::get();
+        $users = User::get();
         $clients = Client::get();
 
         return view('admin.projects.index', compact('users', 'clients'));
@@ -118,43 +135,75 @@ class ProjectController extends Controller
 
     public function create()
     {
-        if(!auth()->user()->checkPermission('project_create')){
+        if (!auth()->user()->checkPermission('project_create')) {
             abort(403, 'Unauthorized.');
         }
-
+        $sources = ProjectSource::all();
+        $campaigns = ProjectCampaign::all();
         $created_bies = User::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $clients = Client::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        return view('admin.projects.create', compact('clients', 'created_bies'));
+        return view('admin.projects.create', compact('clients', 'created_bies', 'sources', 'campaigns'));
     }
 
     public function store(StoreProjectRequest $request)
     {
-        if(!auth()->user()->checkPermission('project_create')){
+        if (!auth()->user()->checkPermission('project_create')) {
             abort(403, 'Unauthorized.');
         }
 
         $project_details = $request->except('_token');
+        $essentialFields = $request->input('essential_fields', []);
+        $project_details['essential_fields'] = array_merge($essentialFields);
+
+        $customFields = $request->input('custom_fields', []);
+        $project_details['custom_fields'] = array_merge($customFields);
+
+        $salesFields = $request->input('sales_fields', []);
+        $project_details['sales_fields'] = array_merge($salesFields);
+
+        $systemFields = $request->input('system_fields', []);
+        $project_details['system_fields'] = array_merge($systemFields);
         $project_details['created_by_id'] = auth()->user()->id;
+
         $project = Project::create($project_details);
-
-        /*
-        *create default source for project
-        */
-        if(!empty($project)) {
-            $webhook_secret = $this->util->generateWebhookSecret();
-            Source::create(
-                [
-                    'name' => 'Channel Partner',
+        $selectedCampaigns = $request->input('campaign_id', []);
+        $selectedSources = $request->input('source_id', []);
+        
+        foreach ($selectedCampaigns as $campaignId) {
+            // Find the campaign details
+            $campaign = ProjectCampaign::find($campaignId);
+            
+            // Create a new campaign record for each selected campaign
+            $newCampaign = Campaign::create([
+                'campaign_name' => $campaign->campaign_name,
+                'project_id' => $project->id,
+                'agency_id' => $campaign->agency_id
+            ]);
+        
+            // Find the selected sources for the current campaign
+            $selectedSourcesForCampaign = $selectedSources[$campaignId] ?? [];
+        
+            foreach ($selectedSourcesForCampaign as $sourceId) {
+                // Find the source details
+                $source = ProjectSource::find($sourceId);
+                
+                // Create a new source record associated with the current campaign
+                $newSource = Source::create([
+                    'name' => $source->name,
+                    'project_id' => $project->id,
+                    'campaign_id' => $newCampaign->id, // Use the newly created campaign's ID
+                    'webhook_secret' => $this->util->generateWebhookSecret(),
                     'is_cp_source' => 1,
-                    'source_name' => 'Channel Partner',
-                    'webhook_secret' => $webhook_secret,
-                    'project_id' => $project->id
-                ]
-            );
+                    'essential_fields' => [],
+                    'custom_fields' => [],
+                    'system_fields' => [],
+                    'sales_fields' => []
+                ]);
+            }
         }
-
+        
         if ($media = $request->input('ck-media', false)) {
             Media::whereIn('id', $media)->update(['model_id' => $project->id]);
         }
@@ -162,24 +211,27 @@ class ProjectController extends Controller
         return redirect()->route('admin.projects.index');
     }
 
-    public function edit(Project $project)
+    public function edit(Project $project, Request $request)
     {
-        if(!auth()->user()->checkPermission('project_edit')){
+        if (!auth()->user()->checkPermission('project_edit')) {
             abort(403, 'Unauthorized.');
         }
-
+        $projects = Project::all();
         $created_bies = User::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $clients = Client::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $project->load('created_by', 'client');
-
-        return view('admin.projects.edit', compact('clients', 'created_bies', 'project'));
+        $campaigns = Campaign::all();
+        $sources = Source::all();
+        $selectedCampaigns = $request->input('campaign_id', []);
+        $selectedSources = $request->input('source_id', []);
+        return view('admin.projects.edit', compact('clients', 'created_bies', 'project', 'projects', 'campaigns', 'selectedCampaigns', 'selectedSources', 'sources'));
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        if(!auth()->user()->checkPermission('project_edit')){
+        if (!auth()->user()->checkPermission('project_edit')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -189,20 +241,30 @@ class ProjectController extends Controller
         return redirect()->route('admin.projects.index');
     }
 
-    public function show(Project $project)
+    public function show(Project $project, Request $request)
     {
-        if(!auth()->user()->checkPermission('project_view')){
+        if (!auth()->user()->checkPermission('project_view')) {
             abort(403, 'Unauthorized.');
         }
 
-        $project->load('created_by', 'client', 'projectLeads', 'projectCampaigns');
+        $projectId = $request->input('projectId');
+        if (!$projectId) {
+            $projectId = $project->id;
+        }
 
-        return view('admin.projects.show', compact('project'));
+        $projects = Project::all();
+        $campaigns = Campaign::all();
+        $sources = Source::where('project_id', $projectId)->get();
+        $agencies = Agency::all();
+
+        $project->load('created_by', 'client', 'projectLeads', 'projectCampaigns', 'plcs', 'price', 'projectSource');
+
+        return view('admin.projects.show', compact('project', 'projects', 'campaigns', 'sources', 'agencies'));
     }
 
     public function destroy(Project $project)
     {
-        if(!auth()->user()->checkPermission('project_delete')){
+        if (!auth()->user()->checkPermission('project_delete')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -213,7 +275,7 @@ class ProjectController extends Controller
 
     public function massDestroy(MassDestroyProjectRequest $request)
     {
-        if(!auth()->user()->checkPermission('project_delete')){
+        if (!auth()->user()->checkPermission('project_delete')) {
             abort(403, 'Unauthorized.');
         }
 
@@ -228,29 +290,29 @@ class ProjectController extends Controller
 
     public function storeCKEditorImages(Request $request)
     {
-        if(!(auth()->user()->checkPermission('project_create') || auth()->user()->checkPermission('project_edit'))){
+        if (!(auth()->user()->checkPermission('project_create') || auth()->user()->checkPermission('project_edit'))) {
             abort(403, 'Unauthorized.');
         }
-        
-        $model         = new Project();
-        $model->id     = $request->input('crud_id', 0);
+
+        $model = new Project();
+        $model->id = $request->input('crud_id', 0);
         $model->exists = true;
-        $media         = $model->addMediaFromRequest('upload')->toMediaCollection('ck-media');
+        $media = $model->addMediaFromRequest('upload')->toMediaCollection('ck-media');
 
         return response()->json(['id' => $media->id, 'url' => $media->getUrl()], Response::HTTP_CREATED);
     }
 
     public function getWebhookDetails($id)
     {
-        if(!auth()->user()->is_superadmin) {
+        if (!auth()->user()->is_superadmin) {
             abort(403, 'Unauthorized.');
         }
-        
-        $project = Project::findOrFail($id);
-        
-        return view('admin.projects.webhook', compact('project'));
-    }
 
+        $project = Project::findOrFail($id);
+        $selldo = SellDo::all();
+
+        return view('admin.projects.webhook', compact('project', 'selldo'));
+    }
     public function saveOutgoingWebhookInfo(Request $request)
     {
         $id = $request->input('project_id');
@@ -267,11 +329,11 @@ class ProjectController extends Controller
 
     public function getWebhookHtml(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $type = $request->get('type');
             $key = $request->get('key');
             $project_id = $request->input('project_id');
-            if($type == 'api') {
+            if ($type == 'api') {
                 $tags = $this->util->getWebhookFieldsTags($project_id);
                 return view('admin.projects.partials.api_card')
                     ->with(compact('key', 'tags'));
@@ -284,7 +346,7 @@ class ProjectController extends Controller
 
     public function getRequestBodyRow(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $project_id = $request->input('project_id');
             $webhook_key = $request->get('webhook_key');
             $rb_key = $request->get('rb_key');
@@ -294,13 +356,14 @@ class ProjectController extends Controller
         }
     }
 
+
     public function postTestWebhook(Request $request)
     {
         try {
             $api = $request->input('api');
             $response = null;
             foreach ($api as $api_detail) {
-                if(
+                if (
                     !empty($api_detail['url'])
                 ) {
                     $body = $this->getDummyDataForApi($api_detail);
@@ -329,23 +392,22 @@ class ProjectController extends Controller
     public function getDummyDataForApi($api)
     {
         $request_body = $api['request_body'] ?? [];
-        if(empty($request_body)) {
+        if (empty($request_body)) {
             return [];
         }
 
         $dummy_data = [];
         foreach ($request_body as $value) {
-            if(!empty($value['key'])) {
+            if (!empty($value['key'])) {
                 $dummy_data[$value['key']] = 'test data';
             }
         }
 
         return $dummy_data;
     }
-
     public function getApiConstantRow(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $webhook_key = $request->get('webhook_key');
             $constant_key = $request->get('constant_key');
             return view('admin.projects.partials.constants')
@@ -357,8 +419,8 @@ class ProjectController extends Controller
     {
         if ($request->ajax()) {
             $campaigns = Campaign::where('project_id', $request->input('project_id'))
-                        ->pluck('campaign_name', 'id')
-                        ->toArray();
+                ->pluck('campaign_name', 'id')
+                ->toArray();
 
             return view('admin.projects.partials.campaigns_dropdown')
                 ->with(compact('campaigns'));
@@ -367,11 +429,11 @@ class ProjectController extends Controller
 
     public function getSourceDropdown(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $sources = Source::where('project_id', $request->input('project_id'))
-                        ->where('campaign_id', $request->input('campaign_id'))
-                        ->pluck('name', 'id')
-                        ->toArray();
+                ->where('campaign_id', $request->input('campaign_id'))
+                ->pluck('name', 'id')
+                ->toArray();
 
             return view('admin.projects.partials.sources_dropdown')
                 ->with(compact('sources'));
@@ -380,12 +442,30 @@ class ProjectController extends Controller
 
     public function getAdditionalFieldsDropdown(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $project = Project::where('id', $request->input('project_id'))
-                        ->firstOrFail();
+                ->firstOrFail();
 
             return view('admin.projects.partials.additional_fields_dropdown')
                 ->with(compact('project'));
         }
+    }
+    public function source(Request $request, $id)
+    {
+        // Find the project with the given ID
+        $project = Project::findOrFail($id);
+
+        // Get the projectId from the request
+        $projectId = $request->input('projectId');
+
+        // If projectId is not set, use the ID of the current project
+        if (!$projectId) {
+            $projectId = $id;
+        }
+        $campaigns = Campaign::all();
+        $sources = Source::where('project_id', $projectId)->get();
+
+        // Pass the project and sources data to the view
+        return view('admin.sources.index', compact('projects', 'sources', 'campaigns', 'project'));
     }
 }

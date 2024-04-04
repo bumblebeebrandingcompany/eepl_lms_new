@@ -24,20 +24,14 @@
                                 </small>
                             </h5>
                             <div class="card-tools">
-                                @if(auth()->user()->checkPermission('lead_delete'))
-                                    <input class="form-check-input lead_ids" type="checkbox" id="{{$lead->id}}" value="{{$lead->id}}">
-                                @endif
-                                @if(auth()->user()->checkPermission('lead_view'))
-                                    <a href="{{route('admin.leads.show', [$lead->id])}}" class="btn btn-tool btn-link">
-                                        <i class="far fa-eye text-primary"></i>
-                                    </a>
-                                @endif
-                                @if(auth()->user()->checkPermission('lead_edit'))
+                                <input class="form-check-input lead_ids" type="checkbox" id="{{$lead->id}}" value="{{$lead->id}}">
+                                <a href="{{route('admin.leads.show', [$lead->id])}}" class="btn btn-tool btn-link">
+                                    <i class="far fa-eye text-primary"></i>
+                                </a>
+                                @if(auth()->user()->is_superadmin)
                                     <a href="{{route('admin.leads.edit', [$lead->id])}}" class="btn btn-tool">
                                         <i class="far fa-edit text-info"></i>
                                     </a>
-                                @endif
-                                @if(auth()->user()->checkPermission('lead_delete'))
                                     <form action="{{route('admin.leads.destroy', [$lead->id])}}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -52,7 +46,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <strong>@lang('messages.email')</strong>:
-                                    @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($lead->email))
+                                    @if(auth()->user()->is_channel_partner_manager && !empty($lead->email))
                                         {{ maskEmail($lead->email) }}
                                     @else
                                         {{ $lead->email ?? '' }}
@@ -60,7 +54,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <strong>@lang('messages.phone')</strong>:
-                                    @if(auth()->user()->checkPermission('number_and_email_masking') && !empty($lead->phone))
+                                    @if(auth()->user()->is_channel_partner_manager && !empty($lead->phone))
                                         {{ maskNumber($lead->phone) }}
                                     @else
                                         {{ $lead->phone ?? '' }}
