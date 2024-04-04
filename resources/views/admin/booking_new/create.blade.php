@@ -36,10 +36,16 @@
                         <td> {{ $plotdetails->overall_sqft_price }}</td>
                         <td> {{ $plotdetails->plc->name ?? '' }}</td>
                         <td>
-                            <a href="{{ route('admin.booking.plots', $plotdetails->id) }}"
-                                class="btn btn-info btn-sm">
-                                Book
-                            </a>
+                         
+                                @if ($plotdetails->status_id === 1)
+                                <span class="badge badge-success">Booked</span>
+                                @else
+                                    <a href="{{ route('admin.booking.plots', $plotdetails->id) }}" class="btn btn-info btn-sm">
+                                        Book
+                                    </a>
+                                @endif
+                           
+                            
                         </td>
                     </tr>
                 @endforeach

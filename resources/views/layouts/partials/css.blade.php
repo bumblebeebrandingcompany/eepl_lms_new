@@ -35,20 +35,8 @@
         align-items: center;
         margin: 35px;
         color: #000;
-        box-shadow: 1px 2px 3px 4px rgba(10, 10, 10, 0.1);
+        box-shadow: 1px 2px 3px 4px rgba(10,10,10,0.1);
     }
-
-    /* Fixed Header */
-    /* Fixed Header */
-    .table-fixed thead {
-        position: sticky;
-        top: 0;
-        background-color: #fff;
-    }
-
-  
-
-
 
     .cardd-content {
         text-align: center;
@@ -67,7 +55,7 @@
         height: 0;
     }
 
-
+    
 
     .slider {
         position: absolute;

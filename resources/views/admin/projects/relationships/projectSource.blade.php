@@ -84,10 +84,8 @@
 
                             </td> -->
                                 <td>
-                                    {{ $source->campaign->campaign_name }}
+                                    {{-- {{ $source->campaign->name }} --}}
                                 </td>
-
-
                                 <td>
                                     {{ $source->name }}
                                 </td>

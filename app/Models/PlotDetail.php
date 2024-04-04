@@ -11,6 +11,7 @@ class PlotDetail extends Model
 {
     use HasFactory;
 
+    use HasFactory;
     public $table = 'plot_details';
     protected $dates = [
         'created_at',
@@ -30,9 +31,6 @@ class PlotDetail extends Model
 
     public function booking()
     {
-        return $this->hasMany(Booking::class, 'plot_id');
+        return $this->hasMany(Booking::class, 'plot_id','id');
     }
-
-
-    
 }

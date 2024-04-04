@@ -21,7 +21,6 @@
                     <a class="nav-link" data-widget="pushmenu" href="#"><i class="fa fa-bars"></i></a>
                 </li>
             </ul>
-
             <!-- Right navbar links -->
             @if(count(config('panel.available_languages', [])) > 1)
                 <ul class="navbar-nav ml-auto">

@@ -723,7 +723,8 @@ class Util
             'BankingTeam' => 'BAT',
             'Customer' => 'CUST',
             'SiteExecutive' => 'SE',
-            'Merlom' => "MER"
+            'Merlom' => "MER",
+            'Premier'=>"PRE"
         ];
         return $this->generateReferenceNumber($user->id, $prefixes[$user->user_type]);
     }

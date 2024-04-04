@@ -13,14 +13,14 @@
                             <span class="text-danger">{{ $errors->first('name') }}</span>
                         @endif
                         <span class="help-block">{{ trans('cruds.project.fields.location_helper') }}</span>
-                        <label for="aadhar_no">Aadhar No</label>
+                        {{-- <label for="aadhar_no">Aadhar No</label>
                         <input class="form-control {{ $errors->has('aadhar_no') ? 'is-invalid' : '' }}" type="text"
                             name="aadhar_no" id="aadhar_no" value="{{ old('aadhar_no', '') }}">
                         @if ($errors->has('aadhar_no'))
                             <span class="text-danger">{{ $errors->first('aadhar_no') }}</span>
                         @endif
-                        <span class="help-block">{{ trans('cruds.project.fields.location_helper') }}</span>
-                        <div class="form-group">
+                        <span class="help-block">{{ trans('cruds.project.fields.location_helper') }}</span> --}}
+                        {{-- <div class="form-group">
                             <label for="pan">Pan</label>
                             <input class="form-control {{ $errors->has('pan') ? 'is-invalid' : '' }}" type="text"
                                 name="pan" id="pan" value="{{ old('pan', '') }}">
@@ -28,7 +28,7 @@
                                 <span class="text-danger">{{ $errors->first('pan') }}</span>
                             @endif
                             <span class="help-block">{{ trans('cruds.project.fields.location_helper') }}</span>
-                        </div>
+                        </div> --}}
                         <div class="form-group">
                             <label for="phone">Phone</label>
                             <input class="form-control {{ $errors->has('phone') ? 'is-invalid' : '' }}" type="text"
@@ -56,7 +56,8 @@
                                 <span class="text-danger">{{ $errors->first('email') }}</span>
                             @endif
                             <span class="help-block">{{ trans('cruds.project.fields.location_helper') }}</span>
-                        </div>
+
+</div>
                         <div class="form-group">
                             <label for="secondary_email">Secondary email</label>
                             <input class="form-control {{ $errors->has('secondary_email') ? 'is-invalid' : '' }}"
@@ -85,7 +86,7 @@
                                             {{ old('user_type', '') === (string) $key ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
-                                    @else
+                                        @elsex
                                         @if ($key == 'ChannelPartner')
                                             <option value="{{ $key }}" selected>
                                                 {{ $label }}
@@ -103,6 +104,7 @@
         </div>
         <div class="card card-primary card-outline">
             <div class="card-body">
+
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
@@ -116,7 +118,8 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="form-group">
+
+<div class="form-group">
                             <label for="overall_sqft">Overall Sqft</label>
                             <input class="form-control {{ $errors->has('overall_sqft') ? 'is-invalid' : '' }}"
                                 type="text" name="overall_sqft" id="overall_sqft"
@@ -169,7 +172,7 @@
                     </div>
                 </div>
 
-                {{-- <div class="row">
+{{-- <div class="row">
                     @php
                         $plcNames = json_decode($plotdetail->plc_values);
                     @endphp
@@ -239,7 +242,8 @@
                                 id="discount_amount_including_plc" readonly>
                         </div>
                     </div>
-                </div> --}}
+
+</div> --}}
 
                 {{-- <div class="col-md-3">
                         <div class="form-group">
@@ -317,10 +321,9 @@
         var plcPrice = 0;
         var totalSqftPLCInputs = document.getElementsByClassName('total_sqft_plc');
 
-
-        // for (var i = 0; i < totalSqftPLCInputs.length; i++) {
+// for (var i = 0; i < totalSqftPLCInputs.length; i++) {
         //     var plcTag = totalSqftPLCInputs[i].getAttribute('data-plc-tag');
-        //     var plcValue = parseFloat(totalSqftPLCInputs[i].value) || 0;
+        //     var plcValue = parseFloat(totalSqftPLCInputs[i].value)  0;
 
         //     console.log('plots:', i, 'data-plc-tag:', plcTag);
 
@@ -359,7 +362,7 @@
         // var plcValues = totalAmountWithPLC - discountAmountPLC;
         // document.getElementById('plc_values').value = isNaN(plcValues) ? '' : plcValues.toFixed(2);
         // var pendingAmount = 0;
-        // if (isNaN(advanceAmount) || advanceAmount === '') {
+        // if (isNaN(advanceAmount)  advanceAmount === '') {
         //     pendingAmount = totalAfterDiscount;
         // } else {
         //     pendingAmount = totalAfterDiscount - advanceAmount;
@@ -397,7 +400,7 @@
             totalAdvanceAmount += parseFloat(advanceAmountInputs[i].value) || 0;
         }
 
-        var pendingAmount = totalAfterDiscount - totalAdvanceAmount;
+var pendingAmount = totalAfterDiscount - totalAdvanceAmount;
 
         // Update total amount, discount amount, total after discount, and pending amount fields
         document.getElementById('total').value = isNaN(total) ? '' : total.toFixed(2);

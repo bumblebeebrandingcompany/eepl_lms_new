@@ -62,6 +62,7 @@ class User extends Authenticatable
         'SiteExecutive' => 'Site Executive',
         "Merlom"=>"Merlom",
         "Premier" =>"Premier"
+
     ];
 
     /**

@@ -36,7 +36,6 @@ class Booking extends Model
     'user_type',
     'per_sqft_based_price'
   ];
-
   public function plot()
   {
       return $this->belongsTo(PlotDetail::class, 'plot_id');

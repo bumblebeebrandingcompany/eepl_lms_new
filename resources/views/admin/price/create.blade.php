@@ -10,7 +10,6 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="{{ route('admin.price.store') }}" enctype="multipart/form-data">
-
                     <div class="form-group">
                         <label for="price_per_sqft">Price Per sqft
                         </label>

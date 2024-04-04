@@ -25,7 +25,7 @@ class BookingController extends Controller
     }
     public function store(Request $request)
     {
-        try{
+      
             $booking = new Booking();
             $booking->name= $request->name;
             $booking->aadhar_no= $request->aadhar_no;
@@ -46,21 +46,19 @@ class BookingController extends Controller
             $booking->advance_amount = json_encode($request->advance_amount);
             $booking->{'credit/not_credit'}= $request->{'credit/not_credit'};
             $booking->status_id= $request->status_id;
-            $booking->plot_id= $request->plot_id;
+             $booking->plot_id= $request->plot_id;
             $booking->remarks=$request->remarks;
             $booking->user_type=$request->user_type;
             $booking->per_sqft_based_price=$request->per_sqft_based_price;
 
-            // $booking->plot_id = json_encode($request->plot_id);
+           
            
             $booking->save();
+            $plot = PlotDetail::findOrFail($request->plot_id);
+            $plot->status_id = $request->status_id;
+            $plot->update();
             return redirect()->back()->with('success', 'Form submitted successfully!');
-        } catch (\Exception $e) {
-            // Log the error for debugging purposes
-            \Log::error('Error saving booking: ' . $e->getMessage());
-            // Optionally, return an error response
-            return response()->json(['success' => false, 'message' => 'Error saving booking'], 500);
-        }
+        
     }                
     public function update($id, Request $request)
     {
@@ -101,7 +99,6 @@ class BookingController extends Controller
     {
         $plotdetail = PlotDetail::findOrFail($id);
         $booking = Booking::where('plot_id', $id)->first();
-        // $bookings=Booking::findOrFail($id);
         return view('admin.booking_new.booking', compact('plotdetail', 'booking'));
     }
     public function book(Request $request)

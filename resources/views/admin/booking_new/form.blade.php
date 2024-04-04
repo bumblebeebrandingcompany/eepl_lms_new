@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-<h2>Registration Form</h2>
+    <h2>Registration Form</h2>
     <form id="BookingFormId" method="POST" enctype="multipart/form-data"
         action="{{ route('admin.booking.update', $booking->id) }}">
         @csrf
@@ -17,7 +17,7 @@
                                 <option value="2">Cash</option>
                                 <option value="3">UPI</option>
                                 <option value="4">Cheque</option>
-                                <option value="5">Demand Draft(DD)</option>                           
+                                <option value="5">Demand Draft(DD)</option>
                                 <option value="6">NEFT</option>
                                 <option value="7">RTGS</option>
                                 <option value="8">UPI</option>
@@ -40,7 +40,7 @@
                                 </div>
                                 <br>
 
-                           
+
                                 <br>
                                 <div class="form-group">
                                     <label for="account_no">Account No</label>
