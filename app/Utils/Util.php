@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Utils;
+
 use App\Models\Campaign;
 use App\Models\Project;
 use App\Models\Lead;
@@ -10,6 +11,7 @@ use Spatie\WebhookServer\WebhookCall;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Models\Source;
+
 class Util
 {
     public function getUserProjects($user)
@@ -18,14 +20,14 @@ class Util
 
         if ($user->is_channel_partner || $user->is_client || $user->is_agency) {
             $cp_project_ids = $user->project_assigned ?? [];
-            $query = $query->where(function ($q) use($user, $cp_project_ids) {
-                        if($user->is_channel_partner) {
-                            $q->whereIn('id', $cp_project_ids);
-                        } else {
-                            $q->where('created_by_id', $user->id)
-                                ->orWhere('client_id', $user->client_id);
-                        }
-                    });
+            $query = $query->where(function ($q) use ($user, $cp_project_ids) {
+                if ($user->is_channel_partner) {
+                    $q->whereIn('id', $cp_project_ids);
+                } else {
+                    $q->where('created_by_id', $user->id)
+                        ->orWhere('client_id', $user->client_id);
+                }
+            });
         }
 
         $project_ids = $query->pluck('id')->toArray();
@@ -33,53 +35,149 @@ class Util
         return $project_ids;
     }
 
-    public function getCampaigns($user, $project_ids=[])
+    public function getCampaigns($user, $project_ids = [])
     {
         $query = new Campaign();
 
         if ($user->is_agency) {
-            $query = $query->where(function ($q) use($user) {
-                        $q->where('agency_id', $user->agency_id);
-                    });
+            $query = $query->where(function ($q) use ($user) {
+                $q->where('agency_id', $user->agency_id);
+            });
         }
 
         if ($user->is_client) {
-            $query = $query->where(function ($q) use($project_ids) {
-                    $q->whereIn('project_id', $project_ids);
-                });
+            $query = $query->where(function ($q) use ($project_ids) {
+                $q->whereIn('project_id', $project_ids);
+            });
         }
 
         $campaign_ids = $query->pluck('id')->toArray();
-        
+
         return $campaign_ids;
     }
 
     public function generateWebhookSecret()
     {
-        $webhookSecret = (string)Str::uuid();
+        $webhookSecret = (string) Str::uuid();
         return $webhookSecret;
     }
-    
+
     public function createLead($source, $payload)
     {
+        $project = Project::where('id', $source->project_id)->first();
+
+        $systemFields = [];
+
+        foreach ($source->system_fields as $field) {
+            $nestedKeys = explode('[', str_replace(']', '', $field['name_key']));
+            $value = $payload;
+
+            foreach ($nestedKeys as $nestedKey) {
+                if (isset($value[$nestedKey])) {
+                    $value = $value[$nestedKey];
+                } else {
+                    $value = null;
+                    break;
+                }
+            }
+
+            $systemFields[$field['name_data']] = $value ?? '';
+        }
+
+        // Display the contents of $systemFields
+        // var_dump($systemFields);
+
+
+        $essentialFields = [];
+
+        foreach ($source->essential_fields as $field) {
+            $nestedKeys = explode('[', str_replace(']', '', $field['name_key']));
+            $value = $payload;
+
+            foreach ($nestedKeys as $nestedKey) {
+                if (isset($value[$nestedKey])) {
+                    $value = $value[$nestedKey];
+                } else {
+                    $value = null;
+                    break;
+                }
+            }
+
+            $essentialFields[$field['name_data']] = $value ?? '';
+        }
+
+
+        $salesFields = [];
+
+        foreach ($source->sales_fields as $field) {
+            $nestedKeys = explode('[', str_replace(']', '', $field['name_key']));
+            $value = $payload;
+
+            foreach ($nestedKeys as $nestedKey) {
+                if (isset($value[$nestedKey])) {
+                    $value = $value[$nestedKey];
+                } else {
+                    $value = null;
+                    break;
+                }
+            }
+
+            $salesFields[$field['name_data']] = $value ?? '';
+        }
+
+        $customFields = [];
+
+        foreach ($source->custom_fields as $field) {
+            $nestedKeys = explode('[', str_replace(']', '', $field['name_key']));
+            $value = $payload;
+
+            foreach ($nestedKeys as $nestedKey) {
+                if (isset($value[$nestedKey])) {
+                    $value = $value[$nestedKey];
+                } else {
+                    $value = null;
+                    break;
+                }
+            }
+
+            $customFields[$field['name_data']] = $value ?? '';
+        }
+
+        // Define other lead attributes
         $name = !empty($source->name_key) ? ($payload[$source->name_key] ?? '') : ($payload['name'] ?? '');
         $email = !empty($source->email_key) ? ($payload[$source->email_key] ?? '') : ($payload['email'] ?? '');
-        $additional_email = !empty($source->additional_email_key) ? ($payload[$source->additional_email_key] ?? '') : '';
+        $additionalEmail = !empty($source->additional_email_key) ? ($payload[$source->additional_email_key] ?? '') : '';
         $phone = !empty($source->phone_key) ? ($payload[$source->phone_key] ?? '') : ($payload['phone'] ?? '');
-        $secondary_phone = !empty($source->secondary_phone_key) ? ($payload[$source->secondary_phone_key] ?? '') : '';
+        $secondaryPhone = !empty($source->secondary_phone_key) ? ($payload[$source->secondary_phone_key] ?? '') : '';
+
+        // Convert $systemFields to a JSON string
+        $systemFieldsString = json_encode($systemFields);
+        $essentialFieldsString = json_encode($essentialFields);
+        $salesFieldsString = json_encode($salesFields);
+        $customFieldsString = json_encode($customFields);
+
+
+        // Create the lead with all the attributes
         $lead = Lead::create([
             'source_id' => $source->id,
             'name' => $name ?? '',
             'email' => $email ?? '',
-            'additional_email' => $additional_email ?? '',
+            'additional_email' => $additionalEmail ?? '',
             'phone' => $phone ?? '',
-            'secondary_phone' => $secondary_phone ?? '',
+            'secondary_phone' => $secondaryPhone ?? '',
             'project_id' => $source->project_id,
             'campaign_id' => $source->campaign_id,
-            'lead_details' => $payload
+            'lead_details' => $payload,
+            'system_fields' => $systemFieldsString,
+            'essential_fields' => $essentialFieldsString,
+            'sales_fields' => $salesFieldsString,
+            'custom_fields' => $customFieldsString,
+
         ]);
 
+
         $lead->ref_num = $this->generateLeadRefNum($lead);
+
         $lead->save();
 
         $this->storeUniqueWebhookFields($lead);
@@ -144,7 +242,7 @@ class Util
 
         try {
 
-            if(
+            if (
                 !empty($project) &&
                 !empty($project->outgoing_apis) &&
                 !empty($lead)
@@ -153,7 +251,7 @@ class Util
                 foreach ($project->outgoing_apis as $api) {
                     $headers = !empty($api['headers']) ? json_decode($api['headers'], true) : [];
                     $request_body = $this->replaceTags($lead, $api);
-                    if(!empty($api['url'])) {
+                    if (!empty($api['url'])) {
                         $headers['secret-key'] = $api['secret_key'] ?? '';
                         $constants = $this->getApiConstants($api);
                         $request_body = array_merge($request_body, $constants);
@@ -167,20 +265,20 @@ class Util
 
                         //checking this to save sell.do response only once in DB for a lead
                         // or update if any error
-                        if(
+                        if (
                             (
-                                !$is_sell_do_executed && 
+                                !$is_sell_do_executed &&
                                 empty($sell_do_response) &&
                                 empty($lead->sell_do_lead_id)
-                            ) || 
+                            ) ||
                             (
-                                !$is_sell_do_executed && 
+                                !$is_sell_do_executed &&
                                 !empty($sell_do_response) &&
                                 !empty($sell_do_response['error'])
                             )
-                        ){
+                        ) {
                             if (strpos($api['url'], 'app.sell.do') !== false) {
-                                if(!empty($response['sell_do_lead_id'])){
+                                if (!empty($response['sell_do_lead_id'])) {
 
                                     $lead->sell_do_is_exist = isset($response['selldo_lead_details']['lead_already_exists']) ? $response['selldo_lead_details']['lead_already_exists'] : false;
 
@@ -191,9 +289,9 @@ class Util
                                     $lead->sell_do_response = json_encode($response);
 
                                     $lead->sell_do_status = isset($response['selldo_lead_details']['status']) ? $response['selldo_lead_details']['status'] : null;
-                                    
+
                                     $lead->sell_do_stage = isset($response['selldo_lead_details']['stage']) ? $response['selldo_lead_details']['stage'] : null;
-                                    
+
                                     $lead->save();
 
                                 }
@@ -217,10 +315,10 @@ class Util
         }
 
         /*
-        * Save webhook responses
-        */
-        if(!empty($lead->webhook_response) && is_array($lead->webhook_response)) {
-            $webhook_responses =  array_merge($lead->webhook_response, $webhook_responses);
+         * Save webhook responses
+         */
+        if (!empty($lead->webhook_response) && is_array($lead->webhook_response)) {
+            $webhook_responses = array_merge($lead->webhook_response, $webhook_responses);
         }
         $lead->webhook_response = $webhook_responses;
         $lead->save();
@@ -231,18 +329,18 @@ class Util
     public function replaceTags($lead, $api)
     {
         $request_body = $api['request_body'] ?? [];
-        if(empty($request_body)) {
+        if (empty($request_body)) {
             return $lead->lead_details;
         }
 
         $tag_replaced_req_body = [];
         $source = $lead->source;
         foreach ($request_body as $value) {
-            if(!empty($value['key']) && !empty($value['value'])) {
-                if(count($value['value']) > 1) {
+            if (!empty($value['key']) && !empty($value['value'])) {
+                if (count($value['value']) > 1) {
                     $arr_value = [];
                     foreach ($value['value'] as $field) {
-                        if(isset($lead->lead_info[$field]) && !empty($lead->lead_info[$field])) {
+                        if (isset($lead->lead_info[$field]) && !empty($lead->lead_info[$field])) {
                             $arr_value[] = $lead->lead_info[$field];
                         } else {
                             $arr_value[] = $this->getPredefinedValue($field, $lead, $source);
@@ -252,7 +350,7 @@ class Util
                     $tag_replaced_req_body[$value['key']] = implode(' | ', $empty_replaced_values);
                 } else {
                     $data_value = '';
-                    if(
+                    if (
                         !empty($value['value']) &&
                         !empty($value['value'][0])
                     ) {
@@ -265,9 +363,9 @@ class Util
         return $tag_replaced_req_body;
     }
 
-    public function getPredefinedValue($field, $lead, $source=null)
+    public function getPredefinedValue($field, $lead, $source = null)
     {
-        if(
+        if (
             (
                 !empty($source->email_key) &&
                 !empty($field) &&
@@ -280,7 +378,7 @@ class Util
             )
         ) {
             return $lead->email ?? '';
-        } else if(
+        } else if (
             (
                 !empty($source->phone_key) &&
                 !empty($field) &&
@@ -293,7 +391,7 @@ class Util
             )
         ) {
             return $lead->phone ?? '';
-        } else if(
+        } else if (
             (
                 !empty($source->name_key) &&
                 !empty($field) &&
@@ -306,83 +404,83 @@ class Util
             )
         ) {
             return $lead->name ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_comments'])
         ) {
             return $lead->comments ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_cp_comments'])
         ) {
             return $lead->cp_comments ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_created_by'])
         ) {
             return optional($lead->createdBy)->name ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_created_at'])
         ) {
             return $lead->created_at ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_source_name'])
         ) {
-            if(!empty($lead->createdBy) && $lead->createdBy->user_type == 'ChannelPartner'){
+            if (!empty($lead->createdBy) && $lead->createdBy->user_type == 'ChannelPartner') {
                 return 'Channel Partner';
             } else {
                 return optional($lead->source)->source_name ?? '';
             }
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_campaign_name'])
         ) {
             return optional($lead->campaign)->campaign_name ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_agency_name']) &&
             !empty($lead->campaign) &&
             !empty($lead->campaign->agency) &&
             !empty($lead->campaign->agency->name)
-            
+
         ) {
             return $lead->campaign->agency->name ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_additional_email']) &&
             !empty($lead->additional_email)
         ) {
             return $lead->additional_email ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_secondary_phone']) &&
             !empty($lead->secondary_phone)
         ) {
             return $lead->secondary_phone ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_source_field1'])
         ) {
             return optional($lead->source)->source_field1 ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_source_field2'])
         ) {
             return optional($lead->source)->source_field2 ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_source_field3'])
         ) {
             return optional($lead->source)->source_field3 ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_source_field4'])
         ) {
             return optional($lead->source)->source_field4 ?? '';
-        } else if(
-            !empty($field) && 
+        } else if (
+            !empty($field) &&
             in_array($field, ['predefined_lead_ref_no'])
         ) {
             return $lead->ref_num ?? '';
@@ -391,9 +489,9 @@ class Util
 
     public function getLeadTags($id)
     {
-        $lead =  Lead::where('source_id', $id)
-                    ->latest()
-                    ->first();
+        $lead = Lead::where('source_id', $id)
+            ->latest()
+            ->first();
 
         $tags = !empty($lead->lead_info) ? array_keys($lead->lead_info) : [];
 
@@ -401,26 +499,26 @@ class Util
     }
 
     /*
-    * return sources
-    *
-    * @param $for_cp: is channel partner
-    *
-    * @return array
-    */
-    public function getSources($for_cp=false)
+     * return sources
+     *
+     * @param $for_cp: is channel partner
+     *
+     * @return array
+     */
+    public function getSources($for_cp = false)
     {
         $sources = Source::with(['project', 'campaign'])
-                    ->get();
+            ->get();
 
-        if($for_cp) {
+        if ($for_cp) {
             $sources_arr = [];
             foreach ($sources as $source) {
                 $title = '';
-                if(!empty($source->project)) {
+                if (!empty($source->project)) {
                     $title = $source->project->name . ' | ';
                 }
 
-                if(!empty($source->campaign)) {
+                if (!empty($source->campaign)) {
                     $title .= $source->campaign->campaign_name . ' | ';
                 }
 
@@ -434,19 +532,19 @@ class Util
         return $sources->pluck('name', 'id')->toArray();
     }
 
-    public function postWebhook($url, $method, $headers=[], $body=[])
+    public function postWebhook($url, $method, $headers = [], $body = [])
     {
-        if(in_array($method, ['get'])) {
+        if (in_array($method, ['get'])) {
 
             $client = new Client();
             $response = $client->get($url, [
                 'query' => $body,
                 'headers' => $headers,
             ]);
-            
+
             return json_decode($response->getBody(), true);
         }
-        if(in_array($method, ['post'])) {
+        if (in_array($method, ['post'])) {
 
             $client = new Client();
             $response = $client->post($url, [
@@ -459,21 +557,21 @@ class Util
     }
 
     /*
-    * return project dropdown
-    *
-    * @param $for_cp: is channel partner
-    *
-    * @return array
-    */
-    public function getProjectDropdown($for_cp=false)
+     * return project dropdown
+     *
+     * @param $for_cp: is channel partner
+     *
+     * @return array
+     */
+    public function getProjectDropdown($for_cp = false)
     {
         $projects = Project::with(['client'])
-                    ->get();
+            ->get();
 
-        if($for_cp) {
+        if ($for_cp) {
             $projects_arr = [];
             foreach ($projects as $project) {
-                $projects_arr[$project->id] = $project->client->name.' | '.$project->name;
+                $projects_arr[$project->id] = $project->client->name . ' | ' . $project->name;
             }
             return $projects_arr;
         }
@@ -483,10 +581,10 @@ class Util
 
     public function getApiConstants($api)
     {
-        if(isset($api['constants']) && !empty($api['constants'])) {
+        if (isset($api['constants']) && !empty($api['constants'])) {
             $constants = [];
             foreach ($api['constants'] as $value) {
-                if(!empty($value['key']) && !empty($value['value'])) {
+                if (!empty($value['key']) && !empty($value['value'])) {
                     $constants[$value['key']] = $value['value'];
                 }
             }
@@ -503,47 +601,47 @@ class Util
     }
 
     /*
-    * return project ids for
-    * clients
-    *
-    * @return array
-    */
-    public function getClientsProjects($client_ids=[])
+     * return project ids for
+     * clients
+     *
+     * @return array
+     */
+    public function getClientsProjects($client_ids = [])
     {
         $client_ids = empty($client_ids) ? $this->getGlobalClientsFilter() : $client_ids;
-        if(empty($client_ids)) {
+        if (empty($client_ids)) {
             return [];
         }
 
         $projects = Project::whereIn('client_id', $client_ids)
-                    ->pluck('id')->toArray();
+            ->pluck('id')->toArray();
 
         return $projects;
     }
 
     /*
-    * return campaign ids for
-    * clients
-    *
-    * @return array
-    */
-    public function getClientsCampaigns($client_ids=[])
+     * return campaign ids for
+     * clients
+     *
+     * @return array
+     */
+    public function getClientsCampaigns($client_ids = [])
     {
         $project_ids = $this->getClientsProjects($client_ids);
-        
+
         if (empty($project_ids)) {
             return [];
         }
 
         $campaign_ids = Campaign::whereIn('project_id', $project_ids)
-                        ->pluck('id')->toArray();
+            ->pluck('id')->toArray();
 
         return $campaign_ids;
     }
 
     public function getWebhookFieldsTags($id)
     {
-        $project =  Project::findOrFail($id);
+        $project = Project::findOrFail($id);
 
         $db_fields = Lead::DEFAULT_WEBHOOK_FIELDS;
         $tags = !empty($project->webhook_fields) ? array_merge($project->webhook_fields, $db_fields) : $db_fields;
@@ -553,7 +651,7 @@ class Util
 
     public function storeUniqueWebhookFields($lead)
     {
-        $project =  Project::findOrFail($lead->project_id);
+        $project = Project::findOrFail($lead->project_id);
 
         $fields = !empty($lead->lead_info) ? array_keys($lead->lead_info) : [];
         $webhook_fields = !empty($project->webhook_fields) ? array_merge($project->webhook_fields, $fields) : $fields;
@@ -566,38 +664,40 @@ class Util
     {
         $outgoing_apis = $project->outgoing_apis;
         $fields = [];
-        foreach($outgoing_apis as $outgoing_api){
+        foreach ($outgoing_apis as $outgoing_api) {
             $body = $outgoing_api['request_body'] ?? [];
-            foreach($body as $details){
-                $fields[] = $details['key'];
+            foreach ($body as $details) {
+                if (isset($details['value'])) {
+                    $fields[] = $details['value'];
+                }
             }
         }
-        
+
         $webhook_fields = !empty($project->webhook_fields) ? array_merge($project->webhook_fields, $fields) : $fields;
-        $unique_webhook_fields = array_unique($webhook_fields);
-        $project->webhook_fields = array_values($unique_webhook_fields);
+        // $unique_webhook_fields = array_unique($webhook_fields);
+        // $project->webhook_fields = array_values($unique_webhook_fields);
         $project->save();
     }
 
     public function getClientProjects($id)
     {
         $projects = Project::where('client_id', $id)
-                    ->pluck('name', 'id')
-                    ->toArray();
+            ->pluck('name', 'id')
+            ->toArray();
 
         return $projects;
     }
 
     /**
-	* generate lead ref no
-	*
-	* @param  $project_id
-	*/
-	public function generateReferenceNumber($ref_count, $ref_prefix)
-	{
-	    $ref_digits =  str_pad($ref_count, 4, 0, STR_PAD_LEFT);
-	    return $ref_prefix.$ref_digits;
-	}
+     * generate lead ref no
+     *
+     * @param  $project_id
+     */
+    public function generateReferenceNumber($ref_count, $ref_prefix)
+    {
+        $ref_digits = str_pad($ref_count, 4, 0, STR_PAD_LEFT);
+        return $ref_prefix . $ref_digits;
+    }
 
     public function generateLeadRefNum($lead)
     {
@@ -623,6 +723,7 @@ class Util
             'BankingTeam' => 'BAT',
             'Customer' => 'CUST',
             'SiteExecutive' => 'SE',
+            'Merlom' => "MER"
         ];
         return $this->generateReferenceNumber($user->id, $prefixes[$user->user_type]);
     }
@@ -631,7 +732,7 @@ class Util
     {
         $user = auth()->user();
         $__global_clients_filter = $this->getGlobalClientsFilter();
-        if(!empty($__global_clients_filter)) {
+        if (!empty($__global_clients_filter)) {
             $project_ids = $this->getClientsProjects($__global_clients_filter);
             $campaign_ids = $this->getClientsCampaigns($__global_clients_filter);
         } else {
@@ -640,28 +741,28 @@ class Util
         }
 
         $query = Lead::with(['project', 'campaign', 'source', 'createdBy'])
-                ->select(sprintf('%s.*', (new Lead)->table));
+            ->select(sprintf('%s.*', (new Lead)->table));
 
         if ($request->has('leads_status')) {
             $leads_status = $request->get('leads_status');
-            
-            if($leads_status == 'duplicate'){
+
+            if ($leads_status == 'duplicate') {
                 $query->where('sell_do_is_exist', 1);
-            } 
-            
-            if($leads_status == 'new'){
+            }
+
+            if ($leads_status == 'new') {
                 $query->where('sell_do_is_exist', 0);
             }
         }
 
-        if($user->is_channel_partner_manager) {
-            $query = $query->whereHas('createdBy', function ($q) use($user) {
-                        $q->where('user_type', '=', 'ChannelPartner')
-                        ->orWhere('leads.created_by', $user->id);
-                    });
+        if ($user->is_channel_partner_manager) {
+            $query = $query->whereHas('createdBy', function ($q) use ($user) {
+                $q->where('user_type', '=', 'ChannelPartner')
+                    ->orWhere('leads.created_by', $user->id);
+            });
         } else {
-            $query = $query->where(function ($q) use($project_ids, $campaign_ids, $user) {
-                if($user->is_channel_partner) {
+            $query = $query->where(function ($q) use ($project_ids, $campaign_ids, $user) {
+                if ($user->is_channel_partner) {
                     $q->where('leads.created_by', $user->id);
                 } else {
                     $q->whereIn('leads.project_id', $project_ids)
@@ -673,23 +774,23 @@ class Util
         $query->groupBy('id');
 
         //filter leads
-        if(!empty($request->input('project_id'))) {
+        if (!empty($request->input('project_id'))) {
             $query->where('leads.project_id', $request->input('project_id'));
         }
 
-        if(!empty($request->input('campaign_id'))) {
+        if (!empty($request->input('campaign_id'))) {
             $query->where('leads.campaign_id', $request->input('campaign_id'));
         }
 
-        if(!empty($request->input('source'))) {
+        if (!empty($request->input('source'))) {
             $query->where('leads.source_id', $request->input('source'));
         }
 
-        if(!empty($request->input('no_lead_id')) && $request->input('no_lead_id') === 'true') {
+        if (!empty($request->input('no_lead_id')) && $request->input('no_lead_id') === 'true') {
             $query->whereNull('leads.sell_do_lead_id');
         }
 
-        if(!empty($request->input('start_date')) && !empty($request->input('end_date'))) {
+        if (!empty($request->input('start_date')) && !empty($request->input('end_date'))) {
             $query->whereDate('leads.created_at', '>=', $request->input('start_date'))
                 ->whereDate('leads.created_at', '<=', $request->input('end_date'));
         }
@@ -700,31 +801,34 @@ class Util
     public function getLeadBySellDoLeadId($sell_do_lead_id)
     {
         $lead = Lead::where('sell_do_lead_id', $sell_do_lead_id)
-                ->first();
-        
+            ->first();
+
         return $lead;
     }
-
+    public function generateCpWalkinRefNum($cpLead)
+    {
+        return $this->generateReferenceNumber($cpLead->id, 'ME');
+    }
     public function getProjectBySellDoProjectId($campaign)
     {
         $sell_do_project_id = $campaign['project_id'] ?? '';
 
-        if(empty($sell_do_project_id)) {
+        if (empty($sell_do_project_id)) {
             return [];
         }
 
-        $project = Project::where('outgoing_apis', 'like', '%'.$sell_do_project_id.'%')
-                    ->first();
+        $project = Project::where('outgoing_apis', 'like', '%' . $sell_do_project_id . '%')
+            ->first();
 
         return $project;
     }
 
     public function generateGuestDocumentViewUrl($id)
     {
-        return config('constants.DOCUMENT_URL')."/document/{$id}/view";
+        return config('constants.DOCUMENT_URL') . "/document/{$id}/view";
     }
 
-    public function logActivity($lead, $type, $webhook_data, $source="leads_system")
+    public function logActivity($lead, $type, $webhook_data, $source = "leads_system")
     {
         LeadEvents::create([
             'source' => $source,
@@ -734,4 +838,20 @@ class Util
             'webhook_data' => $webhook_data,
         ]);
     }
+
+    public function getNestedKeys($array, $prefix = '')
+{
+    $keys = [];
+    foreach ($array as $key => $value) {
+        if (is_array($value)) {
+            $nestedPrefix = $prefix === '' ? $key : $prefix . '[' . $key . ']';
+            $nestedKeys = $this->getNestedKeys($value, $nestedPrefix);
+            $keys = array_merge($keys, $nestedKeys);
+        } else {
+            $keys[] = $prefix === '' ? $key : $prefix . '[' . $key . ']';
+        }
+    }
+    return $keys;
+}
+
 }

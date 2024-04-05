@@ -31,10 +31,7 @@
             </div>
             <form action="{{route('admin.project.outgoing.webhook.store')}}" method="post" enctype="multipart/form-data">
                 @csrf
-                @php
-                    $db_fields = \App\Models\Lead::DEFAULT_WEBHOOK_FIELDS;
-                    $tags = !empty($project->webhook_fields) ? array_unique(array_merge($project->webhook_fields, $db_fields)) : $db_fields;
-                @endphp
+                
                 <div class="card-body">
                     <input type="hidden" name="project_id" value="{{$project->id}}" id="project_id">
                     <h4>
@@ -51,13 +48,13 @@
                                     @php
                                         $api_webhook_key = $key;
                                     @endphp
-                                    @includeIf('admin.projects.partials.api_card', ['key' => $key, 'api' => $api, 'tags' => $tags])
+                                    @includeIf('admin.projects.partials.api_card', ['key' => $key, 'api' => $api])
                                 @empty
                                     @for($i = 0; $i<=0 ; $i++)
                                         @php
                                             $api_webhook_key = $i;
                                         @endphp
-                                        @includeIf('admin.projects.partials.api_card', ['key' => $i, 'api' => [], 'tags' => $tags])
+                                        @includeIf('admin.projects.partials.api_card', ['key' => $i, 'api' => []])
                                     @endfor
                                 @endforelse
                             </div>
@@ -80,6 +77,8 @@
     </div>
 </div>
 @endsection
+
+
 @section('scripts')
 <script>
     $(function() {

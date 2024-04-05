@@ -11,7 +11,7 @@
     <div class="card-body">
         <form method="POST" action="{{ route("admin.sources.store") }}" enctype="multipart/form-data">
             @csrf
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label class="required" for="project_id">{{ trans('cruds.source.fields.project') }}</label>
                 <select class="form-control select2 {{ $errors->has('project') ? 'is-invalid' : '' }}" name="project_id" id="project_id" required>
                     @foreach($projects as $id => $entry)
@@ -22,7 +22,7 @@
                     <span class="text-danger">{{ $errors->first('project') }}</span>
                 @endif
                 <span class="help-block">{{ trans('cruds.source.fields.project_helper') }}</span>
-            </div>
+            </div> --}}
             <div class="form-group">
                 <label class="required" for="campaign_id">{{ trans('cruds.source.fields.campaign') }}</label>
                 <select class="form-control select2 {{ $errors->has('campaign') ? 'is-invalid' : '' }}" name="campaign_id" id="campaign_id" required>

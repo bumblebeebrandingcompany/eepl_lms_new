@@ -72,7 +72,7 @@ let dtOverrideGlobals = {
         { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
     orderCellsTop: true,
-    order: [[ 14, 'desc' ]],
+    order: [[ 15, 'desc' ]],
     pageLength: 50,
 };
 let table = $('.datatable-Lead').DataTable(dtOverrideGlobals);

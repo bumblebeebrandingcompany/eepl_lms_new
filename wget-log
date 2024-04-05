@@ -1,0 +1,20 @@
+--2023-09-12 08:30:08--  https://www.dropbox.com/scl/fi/h1wf6w1wiudmzrv0ht5ye/csv_2.csv?rlkey=cdepi8gygi9j0ylgmcrv4ypwc
+Resolving www.dropbox.com (www.dropbox.com)... 162.125.81.18, 2620:100:6031:18::a27d:5112
+Connecting to www.dropbox.com (www.dropbox.com)|162.125.81.18|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://www.dropbox.com/e/scl/fi/h1wf6w1wiudmzrv0ht5ye/csv_2.csv?rlkey=cdepi8gygi9j0ylgmcrv4ypwc [following]
+--2023-09-12 08:30:09--  https://www.dropbox.com/e/scl/fi/h1wf6w1wiudmzrv0ht5ye/csv_2.csv?rlkey=cdepi8gygi9j0ylgmcrv4ypwc
+Reusing existing connection to www.dropbox.com:443.
+HTTP request sent, awaiting response... 302 Found
+Location: https://uc9bb08b0abed0d6017e99aca1cf.dl.dropboxusercontent.com/cd/0/inline/CDk5zRp0udeNVsyHDmOXBKT8B4CyhEt1rsJfKclMXE1kV6W3TabZKU0vWpvjIX4sS4X3U-OMI583MqYAXcjXgoWRFStoDjnj3UUxWc0UBX31vCrmp0dcw0bI78r1n-lGZyI/file# [following]
+--2023-09-12 08:30:10--  https://uc9bb08b0abed0d6017e99aca1cf.dl.dropboxusercontent.com/cd/0/inline/CDk5zRp0udeNVsyHDmOXBKT8B4CyhEt1rsJfKclMXE1kV6W3TabZKU0vWpvjIX4sS4X3U-OMI583MqYAXcjXgoWRFStoDjnj3UUxWc0UBX31vCrmp0dcw0bI78r1n-lGZyI/file
+Resolving uc9bb08b0abed0d6017e99aca1cf.dl.dropboxusercontent.com (uc9bb08b0abed0d6017e99aca1cf.dl.dropboxusercontent.com)... 162.125.81.15, 2620:100:6031:15::a27d:510f
+Connecting to uc9bb08b0abed0d6017e99aca1cf.dl.dropboxusercontent.com (uc9bb08b0abed0d6017e99aca1cf.dl.dropboxusercontent.com)|162.125.81.15|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 25014 (24K) [text/plain]
+Saving to: ‘csv_2.csv?rlkey=cdepi8gygi9j0ylgmcrv4ypwc’
+
+csv_2.csv?rlkey=cdepi8gygi9j0ylgmcrv4ypwc   0%[                                                                                    ]       0  --.-KB/s               csv_2.csv?rlkey=cdepi8gygi9j0ylgmcrv4ypwc 100%[===================================================================================>]  24.43K  --.-KB/s    in 0.03s   
+
+2023-09-12 08:30:10 (721 KB/s) - ‘csv_2.csv?rlkey=cdepi8gygi9j0ylgmcrv4ypwc’ saved [25014/25014]
+

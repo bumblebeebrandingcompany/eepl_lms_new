@@ -41,9 +41,19 @@ class Project extends Model implements HasMedia
         'description',
         'webhook_fields',
         'outgoing_apis',
+        'rera_no',
+        'local_body_no',
+        'overall_sqfts',
+        'no_of_plots',
+        'dtcp/cmda',
+        'dtcp/cmda_no',
         'created_at',
         'updated_at',
         'deleted_at',
+        'custom_fields',
+        'essential_fields',
+        'sales_fields',
+        'system_fields'
     ];
 
     /**
@@ -54,6 +64,10 @@ class Project extends Model implements HasMedia
     protected $casts = [
         'webhook_fields' => 'array',
         'outgoing_apis' => 'array',
+        'custom_fields' => 'array',
+        'essential_fields'=>'array',
+        'sales_fields'  => 'array',
+        'system_fields' => 'array',
     ];
 
     protected function serializeDate(DateTimeInterface $date)
@@ -75,6 +89,33 @@ class Project extends Model implements HasMedia
     public function projectCampaigns()
     {
         return $this->hasMany(Campaign::class, 'project_id', 'id');
+    }
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class,  'project_id', 'campaign_id');
+    }
+    public function projectSource()
+    {
+        return $this->hasMany(Source::class, 'project_id', 'id');
+    }
+    public function plcs()
+    {
+        return $this->hasMany(Plc::class, 'project_id', 'id');
+    }
+    public function price()
+    {
+        return $this->hasMany(Price::class, 'project_id', 'id');
+    }
+
+    public function prices()
+    {
+        return $this->hasone(Price::class, 'project_id', 'id');
+    }
+
+    public function plots()
+    {
+        return $this->hasMany(PlotDetail::class, 'project_id', 'id');
     }
 
     public function getStartDateAttribute($value)

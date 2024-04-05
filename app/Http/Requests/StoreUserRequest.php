@@ -25,6 +25,9 @@ class StoreUserRequest extends FormRequest
                 'required',
                 'unique:users',
             ],
+            'sell_do_user_id' => [
+               'string'
+            ],
             'password' => [
                 'required',
             ],

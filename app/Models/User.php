@@ -60,6 +60,7 @@ class User extends Authenticatable
         'BankingTeam' => 'Banking Team',
         'Customer' => 'Customer',
         'SiteExecutive' => 'Site Executive',
+        "Merlom"=>"Merlom"
     ];
 
     /**
@@ -90,6 +91,7 @@ class User extends Authenticatable
         'website',
         'client_id',
         'agency_id',
+        'sell_do_user_id',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -216,7 +218,20 @@ class User extends Authenticatable
     {
         return $this->user_type == 'SiteExecutive';
     }
-    
+
+    public function getIsSalesAttribute()
+    {
+        return $this->user_type == 'Sales';
+    }
+
+    public function getIsCRMTeamAttribute()
+    {
+        return $this->user_type == 'CRMTeam';
+    }
+    public function hasAnyRole($roles)
+    {
+        return $this->roles()->whereIn('name', $roles)->exists();
+    }
     /**
      * check user permission
      *
@@ -237,9 +252,10 @@ class User extends Authenticatable
         } else if(in_array($this->user_type, ['Presales'])) {
             return in_array($permission, ['document_view', 'document_send', 'project_view', 'calendar', 'profile', 'lead_create',  'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['Sales'])) {
-            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_profile', 'lead_document', 'number_and_email_masking']);
+            
+            return in_array($permission, ['document_view', 'document_send', 'profile', 'lead_create', 'lead_view', 'lead_profile', 'lead_flows', 'number_and_email_masking','booking_delete','booking_edit','booking_create','booking_show','booking_view']);
         } else if(in_array($this->user_type, ['CRMTeam'])) {
-            return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_view', 'lead_profile', 'lead_document', 'number_and_email_masking']);
+            return in_array($permission, ['document_view', 'document_send', 'profile', 'lead_view', 'lead_profile', 'lead_flows', 'number_and_email_masking','booking_delete','booking_edit','booking_create','booking_show','booking_view']);
         } else if(in_array($this->user_type, ['CRMHead'])) {
             return in_array($permission, ['document_view', 'document_send', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'lead_document', 'number_and_email_masking']);
         } else if(in_array($this->user_type, ['LegalTeam'])) {
@@ -255,9 +271,11 @@ class User extends Authenticatable
         }  else if(in_array($this->user_type, ['ChannelPartner'])) {
             return in_array($permission, ['project_view', 'profile', 'lead_create', 'lead_view', 'lead_profile', 'lead_view_own_only']);
         }  else if(in_array($this->user_type, ['ChannelPartnerManager'])) {
-            return in_array($permission, ['document_view', 'document_send', 'user_view', 'cp_only_view', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'number_and_email_masking']);
+            return in_array($permission, ['document_view', 'document_send', 'user_view', 'cp_only_view', 'project_view', 'profile', 'lead_create', 'lead_view', 'lead_activity', 'lead_profile', 'number_and_email_masking','user_create']);
         } else if(in_array($this->user_type, ['SiteExecutive'])) {
             return in_array($permission, ['eoi_view', 'eoi_create', 'profile', 'lead_create']);
+        } else if(in_array($this->user_type, ['Merlom'])) {
+            return in_array($permission, [ 'profile','merlom_view','merlom_show','merlom_create']);
         }
 
         return false;

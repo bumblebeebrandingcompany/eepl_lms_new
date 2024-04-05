@@ -1,0 +1,63 @@
+@extends('layouts.admin')
+@section('content')
+    @includeIf('admin.leads.partials.header')
+    @if ($lead_view == 'list' && count($leads) > 0)
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover ajaxTable datatable datatable-Client">
+                                <thead>
+                                    @php
+                                        $lead = $leads[0]; // Assuming the first lead has the necessary fields
+                                        $decodedData = json_decode($lead->essential_fields, true) ?? [];
+                                        $salesData = json_decode($lead->sales_fields, true) ?? [];
+                                        $systemData = json_decode($lead->system_fields, true) ?? [];
+                                        $customData = json_decode($lead->custom_fields, true) ?? [];
+                                    @endphp
+                                    <tr>
+                                        <th>Ref.Num</th>
+                                        @foreach ($decodedData as $key => $value)
+                                            <th>{{ $key }}</th>
+                                        @endforeach
+                                        @foreach ($salesData as $key => $value)
+                                            <th>{{ $key }}</th>
+                                        @endforeach
+                                        @foreach ($systemData as $key => $value)
+                                            <th>{{ $key }}</th>
+                                        @endforeach
+                                        @foreach ($customData as $key => $value)
+                                            <th>{{ $key }}</th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($leads as $lead)
+                                        <tr>
+                                            <td>{{ $lead->ref_num }}</td>
+                                            @foreach (json_decode($lead->essential_fields, true) as $key => $value)
+                                                <td>{{ $value }}</td>
+                                            @endforeach
+                                            @foreach (json_decode($lead->sales_fields, true) as $key => $value)
+                                                <td>{{ $value }}</td>
+                                            @endforeach
+                                            @foreach (json_decode($lead->system_fields, true) as $key => $value)
+                                                <td>{{ $value }}</td>
+                                            @endforeach
+                                            @foreach (json_decode($lead->custom_fields, true) as $key => $value)
+                                                <td>{{ $value }}</td>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <p>No leads available.</p>
+    @endif
+@endsection
